@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wanderlust Journal</title>
+    <title>Wanderlust Metro Journal</title>
     
     <!-- Leaflet.js CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
     <style>
-        /* Windows Phone 7 (Metro) Palette */
+        /* Windows Phone 7 (Metro) Dark Theme */
         :root {
             --bg-dark: #0A0A0A;
             --tile-bg: #161616;
@@ -32,25 +32,21 @@
             font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
             background-color: var(--bg-dark);
             color: var(--text-light);
-            padding-bottom: 5rem;
+            padding-bottom: 3rem;
             overflow-x: hidden;
         }
 
-        /* --- METRO TOP PIVOT BANNER --- */
-        header {
+        /* --- TOP NAVBAR --- */
+        navbar {
             background-color: var(--bg-dark);
-            padding: 1.2rem 1.5rem;
+            padding: 1rem 1.2rem;
             border-bottom: 2px solid var(--border-color);
             position: sticky;
             top: 0;
-            z-index: 900;
-        }
-
-        .header-top {
+            z-index: 1000;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1rem;
         }
 
         .brand-title {
@@ -61,25 +57,12 @@
             font-weight: bold;
         }
 
-        .btn-menu-toggle {
-            background: transparent;
-            color: var(--text-light);
-            border: 1px solid var(--border-color);
-            padding: 6px 14px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        /* Metro Pivot Links */
         .pivot-container {
             display: flex;
-            gap: 1.8rem;
+            gap: 1.2rem;
             overflow-x: auto;
             white-space: nowrap;
             scrollbar-width: none;
-            padding-bottom: 0.3rem;
         }
 
         .pivot-container::-webkit-scrollbar {
@@ -87,208 +70,55 @@
         }
 
         .pivot-item {
-            font-size: 1.8rem;
+            font-size: 1.2rem;
             font-weight: 300;
             color: var(--text-dim);
             cursor: pointer;
             transition: color 0.2s;
-            position: relative;
         }
 
         .pivot-item.active, .pivot-item:hover {
             color: var(--text-light);
             font-weight: 400;
+            border-bottom: 2px solid var(--accent-cyan);
         }
 
-        .pivot-dropdown {
-            display: none;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            background: #1F1F1F;
-            border: 1px solid #333;
-            padding: 0.8rem;
-            min-width: 180px;
-            z-index: 1000;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.8);
+        .btn-add-memory {
+            background-color: var(--accent-cyan);
+            color: black;
+            border: none;
+            padding: 8px 14px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            white-space: nowrap;
         }
 
-        .pivot-item:hover .pivot-dropdown {
-            display: block;
-        }
-
-        .pivot-dropdown div {
-            font-size: 0.9rem;
-            padding: 5px 0;
-            color: var(--text-dim);
-        }
-
-        .pivot-dropdown div:hover {
-            color: var(--accent-cyan);
-        }
-
-        /* --- MAIN LAYOUT --- */
-        .main-container {
-            max-width: 900px;
+        /* --- MAIN 2-COLUMN LAYOUT --- */
+        .app-layout {
+            display: flex;
+            flex-direction: column;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 1.5rem 1rem;
+            padding: 1rem;
+            gap: 1.5rem;
         }
 
-        #map {
-            height: 280px;
-            width: 100%;
-            background: var(--tile-bg);
-            border: 1px solid var(--border-color);
-            margin-bottom: 2rem;
-            z-index: 1;
+        @media (min-width: 768px) {
+            .app-layout {
+                flex-direction: row;
+            }
         }
 
-        /* --- METRO TILES & CARDS --- */
-        .page-heading {
-            font-size: 2.2rem;
-            font-weight: 300;
-            margin-bottom: 1.5rem;
-            letter-spacing: -0.5px;
-        }
-
-        .post-card {
+        /* PERMANENT LEFT BANNER (TREE + TIMELINE) */
+        .left-banner {
+            flex: 0 0 280px;
             background-color: var(--tile-bg);
             border: 1px solid var(--border-color);
-            margin-bottom: 2rem;
-            padding: 1.5rem;
-            position: relative;
-        }
-
-        .post-card.featured {
-            border-left: 5px solid var(--accent-cyan);
-        }
-
-        .post-badge {
-            display: inline-block;
-            background-color: var(--accent-magenta);
-            color: white;
-            font-size: 0.75rem;
-            font-weight: bold;
-            padding: 3px 8px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 0.8rem;
-        }
-
-        .post-title {
-            font-size: 1.8rem;
-            font-weight: 300;
-            color: var(--text-light);
-            margin-bottom: 0.3rem;
-        }
-
-        .post-sub {
-            font-size: 0.85rem;
-            color: var(--accent-cyan);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 1rem;
-        }
-
-        /* Metro AI Fact Box */
-        .ai-facts-box {
-            background-color: #0F1923;
-            border-left: 3px solid var(--accent-cyan);
-            padding: 0.8rem 1rem;
-            margin: 1rem 0;
-            font-size: 0.85rem;
-            line-height: 1.5;
-            color: #C0E0F0;
-        }
-
-        .ai-facts-box strong {
-            color: var(--text-light);
-            display: block;
-            margin-bottom: 0.2rem;
-        }
-
-        .hero-photo {
-            width: 100%;
-            max-height: 350px;
-            object-fit: cover;
-            margin: 1rem 0;
-            border: 1px solid var(--border-color);
-        }
-
-        .post-story {
-            font-size: 0.95rem;
-            line-height: 1.7;
-            color: #D0D0D0;
-            margin-bottom: 1rem;
-        }
-
-        .thumbnail-grid {
-            display: flex;
-            gap: 0.5rem;
-            overflow-x: auto;
-            margin-top: 1rem;
-        }
-
-        .thumbnail-grid img {
-            width: 80px;
-            height: 80px;
-            object-fit: cover;
-            border: 1px solid var(--border-color);
-            cursor: pointer;
-        }
-
-        /* --- FULL SCREEN LEFT SIDEBAR --- */
-        .sidebar-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.85);
-            display: none;
-            z-index: 2000;
-        }
-
-        .sidebar {
-            position: fixed;
-            top: 0;
-            left: -100%;
-            width: 85%;
-            max-width: 420px;
-            height: 100%;
-            background: #111111;
-            border-right: 2px solid var(--border-color);
-            z-index: 2001;
-            transition: left 0.3s ease;
-            overflow-y: auto;
-            padding: 2rem 1.5rem;
-        }
-
-        .sidebar.open {
-            left: 0;
-        }
-
-        .sidebar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            padding-bottom: 0.8rem;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .sidebar-title {
-            font-size: 1.5rem;
-            font-weight: 300;
-            color: var(--text-light);
-        }
-
-        .sidebar-close {
-            background: none;
-            border: none;
-            color: var(--text-light);
-            font-size: 2rem;
-            cursor: pointer;
+            padding: 1.2rem;
+            height: fit-content;
         }
 
         .section-label {
@@ -296,19 +126,25 @@
             text-transform: uppercase;
             letter-spacing: 2px;
             color: var(--accent-orange);
-            margin: 1.8rem 0 0.8rem 0;
+            margin: 1.2rem 0 0.6rem 0;
             font-weight: bold;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.3rem;
         }
 
-        /* Tree View Styling */
+        .section-label:first-child {
+            margin-top: 0;
+        }
+
+        /* Tree View */
         .tree-list, .tree-list ul {
             list-style: none;
-            padding-left: 1rem;
+            padding-left: 0.8rem;
         }
 
         .tree-node {
-            margin: 0.5rem 0;
-            font-size: 0.95rem;
+            margin: 0.4rem 0;
+            font-size: 0.9rem;
             cursor: pointer;
             color: var(--text-dim);
         }
@@ -319,24 +155,25 @@
 
         .tree-node strong {
             color: var(--text-light);
-            font-size: 1rem;
         }
 
-        /* Timeline Styling */
+        /* Timeline View */
         .timeline-list {
             list-style: none;
             border-left: 2px solid var(--accent-lime);
-            padding-left: 1rem;
-            margin-left: 0.5rem;
+            padding-left: 0.8rem;
+            margin-left: 0.3rem;
+            max-height: 250px;
+            overflow-y: auto;
         }
 
         .timeline-item {
-            margin-bottom: 1rem;
+            margin-bottom: 0.8rem;
             cursor: pointer;
         }
 
         .timeline-item .t-place {
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             color: var(--text-light);
         }
 
@@ -345,14 +182,152 @@
             color: var(--text-dim);
         }
 
-        /* Form Inputs */
+        /* MAIN FEED CONTENT */
+        .main-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        #map {
+            height: 280px;
+            width: 100%;
+            background: var(--tile-bg);
+            border: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+            z-index: 1;
+        }
+
+        .post-card {
+            background-color: var(--tile-bg);
+            border: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+            padding: 1.2rem;
+        }
+
+        .post-card.featured {
+            border-left: 5px solid var(--accent-cyan);
+        }
+
+        .post-badge {
+            display: inline-block;
+            background-color: var(--accent-magenta);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: bold;
+            padding: 2px 6px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .post-title {
+            font-size: 1.6rem;
+            font-weight: 300;
+            color: var(--text-light);
+        }
+
+        .post-sub {
+            font-size: 0.8rem;
+            color: var(--accent-cyan);
+            text-transform: uppercase;
+            margin-bottom: 0.8rem;
+        }
+
+        .ai-facts-box {
+            background-color: #0F1923;
+            border-left: 3px solid var(--accent-cyan);
+            padding: 0.7rem 0.9rem;
+            margin: 0.8rem 0;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            color: #C0E0F0;
+        }
+
+        .hero-photo {
+            width: 100%;
+            max-height: 320px;
+            object-fit: cover;
+            margin: 0.8rem 0;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+
+        .post-story {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #D0D0D0;
+        }
+
+        .thumbnail-grid {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            margin-top: 0.8rem;
+        }
+
+        .thumbnail-grid img {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+
+        /* --- COLLAPSIBLE RIGHT SIDE DRAWER (ADD ITEM) --- */
+        .drawer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            z-index: 2000;
+        }
+
+        .right-drawer {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 90%;
+            max-width: 400px;
+            height: 100%;
+            background: #111111;
+            border-left: 2px solid var(--border-color);
+            z-index: 2001;
+            transition: right 0.3s ease;
+            overflow-y: auto;
+            padding: 1.5rem;
+        }
+
+        .right-drawer.open {
+            right: 0;
+        }
+
+        .drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .drawer-close {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 2rem;
+            cursor: pointer;
+        }
+
         .form-group {
             margin-bottom: 1rem;
         }
 
         .form-group label {
             display: block;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 1px;
             color: var(--text-dim);
@@ -365,13 +340,8 @@
             background: #1A1A1A;
             border: 1px solid var(--border-color);
             color: var(--text-light);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             outline: none;
-            font-family: inherit;
-        }
-
-        input:focus, select:focus, textarea:focus {
-            border-color: var(--accent-cyan);
         }
 
         .hidden-input {
@@ -385,9 +355,8 @@
             border: none;
             padding: 12px;
             font-weight: bold;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             text-transform: uppercase;
-            letter-spacing: 1px;
             width: 100%;
             cursor: pointer;
             margin-top: 0.5rem;
@@ -399,46 +368,97 @@
             border: none;
             padding: 10px;
             font-weight: bold;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             width: 100%;
             cursor: pointer;
             margin-bottom: 1rem;
-            letter-spacing: 1px;
             text-transform: uppercase;
+        }
+
+        /* --- PHOTO LIGHTBOX POPUP --- */
+        .lightbox-modal {
+            display: none;
+            position: fixed;
+            z-index: 3000;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.92);
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .lightbox-modal.open {
+            display: flex;
+        }
+
+        .lightbox-img {
+            max-width: 95%;
+            max-height: 90vh;
+            object-fit: contain;
+            border: 2px solid var(--accent-cyan);
+            box-shadow: 0 0 25px rgba(0,0,0,0.8);
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            color: var(--text-light);
+            font-size: 2.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 3001;
+            line-height: 1;
         }
     </style>
 </head>
 <body>
 
-    <!-- TOP METRO PIVOT BANNER -->
-    <header>
-        <div class="header-top">
-            <div class="brand-title">🌍 Wanderlust Metro</div>
-            <button class="btn-menu-toggle" id="openSidebarBtn">≡ Menu</button>
-        </div>
-
+    <!-- TOP NAVBAR -->
+    <navbar>
+        <div class="brand-title">🌍 Wanderlust</div>
         <div class="pivot-container" id="pivotBar">
             <span class="pivot-item active" onclick="filterByCountry('ALL')">ALL</span>
-            <!-- Dynamic Country pivots will load here -->
         </div>
-    </header>
+        <button class="btn-add-memory" id="openDrawerBtn">+ Add Memory</button>
+    </navbar>
 
-    <!-- LEFT FULL-SCREEN SIDEBAR -->
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
-    <div class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div class="sidebar-title">Navigation</div>
-            <button class="sidebar-close" id="closeSidebarBtn">&times;</button>
+    <!-- MAIN APP LAYOUT -->
+    <div class="app-layout">
+        
+        <!-- PERMANENT LEFT SIDE BANNER -->
+        <div class="left-banner">
+            <div class="section-label">🌳 Explorer Tree</div>
+            <div id="treeContainer"></div>
+
+            <div class="section-label">⏳ Timeline View</div>
+            <ul class="timeline-list" id="timelineList"></ul>
         </div>
 
-        <!-- API KEY CONFIGURATION -->
-        <div class="section-label">🔑 Gemini AI Setup</div>
+        <!-- CENTER MAIN FEED -->
+        <div class="main-content">
+            <div id="map"></div>
+            <div id="postsContainer"></div>
+        </div>
+
+    </div>
+
+    <!-- COLLAPSIBLE RIGHT DRAWER (ADD MEMORY FORM) -->
+    <div class="drawer-overlay" id="drawerOverlay"></div>
+    <div class="right-drawer" id="rightDrawer">
+        <div class="drawer-header">
+            <h3>✍️ Add New Entry</h3>
+            <button class="drawer-close" id="closeDrawerBtn">&times;</button>
+        </div>
+
         <div class="form-group">
-            <input type="password" id="geminiApiKey" placeholder="Paste Gemini API Key here...">
+            <label>🔑 Gemini API Key</label>
+            <input type="password" id="geminiApiKey" placeholder="Paste API Key here...">
         </div>
 
-        <!-- ADD MEMORY FORM -->
-        <div class="section-label">✍️ Add Travel Memory</div>
         <form id="travelForm">
             <div class="form-group">
                 <label>Country *</label>
@@ -480,32 +500,18 @@
 
             <div class="form-group">
                 <label>Raw Notes / Story *</label>
-                <textarea id="story" rows="3" placeholder="Tell us what you saw or experienced..." required></textarea>
+                <textarea id="story" rows="3" placeholder="Write your experience..." required></textarea>
             </div>
 
             <button type="button" class="btn-ai" id="aiBtn">✨ Polish & Generate with AI</button>
             <button type="submit" class="btn-metro" id="submitBtn">Publish Memory</button>
         </form>
-
-        <!-- TREE HIERARCHY MENU -->
-        <div class="section-label">🌳 Explorer Tree</div>
-        <div id="treeContainer"></div>
-
-        <!-- TIMELINE VIEW -->
-        <div class="section-label">⏳ Timeline View</div>
-        <ul class="timeline-list" id="timelineList"></ul>
     </div>
 
-    <!-- MAIN PAGE CONTENT -->
-    <div class="main-container">
-        
-        <!-- Interactive Map -->
-        <div id="map"></div>
-
-        <!-- Feed Section -->
-        <div class="page-heading" id="pageHeading">Travel Journal</div>
-        <div id="postsContainer"></div>
-
+    <!-- PHOTO LIGHTBOX POPUP -->
+    <div class="lightbox-modal" id="lightboxModal">
+        <span class="lightbox-close" id="lightboxClose">&times;</span>
+        <img class="lightbox-img" id="lightboxImg" alt="Full view">
     </div>
 
     <!-- Leaflet.js Script -->
@@ -551,24 +557,41 @@
 
         let mapMarkers = [];
 
-        // Sidebar Controls
-        const sidebar = document.getElementById('sidebar');
-        const sidebarOverlay = document.getElementById('sidebarOverlay');
-        
-        document.getElementById('openSidebarBtn').onclick = () => {
-            sidebar.classList.add('open');
-            sidebarOverlay.style.display = 'block';
+        // Collapsible Drawer Controls
+        const rightDrawer = document.getElementById('rightDrawer');
+        const drawerOverlay = document.getElementById('drawerOverlay');
+
+        document.getElementById('openDrawerBtn').onclick = () => {
+            rightDrawer.classList.add('open');
+            drawerOverlay.style.display = 'block';
         };
 
-        const closeSidebar = () => {
-            sidebar.classList.remove('open');
-            sidebarOverlay.style.display = 'none';
+        const closeDrawer = () => {
+            rightDrawer.classList.remove('open');
+            drawerOverlay.style.display = 'none';
         };
 
-        document.getElementById('closeSidebarBtn').onclick = closeSidebar;
-        sidebarOverlay.onclick = closeSidebar;
+        document.getElementById('closeDrawerBtn').onclick = closeDrawer;
+        drawerOverlay.onclick = closeDrawer;
 
-        // Cascading Dropdown Logic
+        // Lightbox Popup Controls
+        const lightboxModal = document.getElementById('lightboxModal');
+        const lightboxImg = document.getElementById('lightboxImg');
+
+        function openLightbox(src) {
+            lightboxImg.src = src;
+            lightboxModal.classList.add('open');
+        }
+
+        document.getElementById('lightboxClose').onclick = () => {
+            lightboxModal.classList.remove('open');
+        };
+
+        lightboxModal.onclick = (e) => {
+            if (e.target === lightboxModal) lightboxModal.classList.remove('open');
+        };
+
+        // Cascading Dropdowns
         const countrySel = document.getElementById('countrySelect');
         const stateSel = document.getElementById('stateSelect');
         const placeSel = document.getElementById('placeSelect');
@@ -615,11 +638,7 @@
         });
 
         placeSel.addEventListener('change', () => {
-            if (placeSel.value === 'Other') {
-                toggleCustom('customPlace', true);
-            } else {
-                toggleCustom('customPlace', false);
-            }
+            toggleCustom('customPlace', placeSel.value === 'Other');
         });
 
         function toggleCustom(id, show) {
@@ -628,15 +647,16 @@
             el.required = show;
         }
 
-        // Render UI Elements
+        // Render UI
         function renderUI(filterCountry = "ALL") {
+            map.closePopup(); // Clear any open popups
+
             entries.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-            // Clear Markers
             mapMarkers.forEach(m => map.removeLayer(m));
             mapMarkers = [];
 
-            // 1. Populate Top Pivot Bar
+            // 1. Pivot Bar
             const pivotBar = document.getElementById('pivotBar');
             const uniqueCountries = [...new Set(entries.map(e => e.country))];
             
@@ -647,12 +667,12 @@
             });
             pivotBar.innerHTML = pivotHtml;
 
-            // Filter Entries
+            // Filter entries
             const filtered = filterCountry === "ALL" 
                 ? entries 
                 : entries.filter(e => e.country === filterCountry);
 
-            // 2. Render Blog Posts
+            // 2. Feed Posts
             const container = document.getElementById('postsContainer');
             container.innerHTML = '';
 
@@ -665,11 +685,11 @@
 
                 let photosHtml = '';
                 if (entry.photos && entry.photos.length > 0) {
-                    photosHtml = `<img src="${entry.photos[0]}" class="hero-photo" id="hero-${entry.id}">`;
+                    photosHtml = `<img src="${entry.photos[0]}" class="hero-photo" onclick="openLightbox(this.src)" alt="${entry.place}">`;
                     if (entry.photos.length > 1) {
                         photosHtml += '<div class="thumbnail-grid">';
                         entry.photos.forEach(p => {
-                            photosHtml += `<img src="${p}" onclick="document.getElementById('hero-${entry.id}').src='${p}'">`;
+                            photosHtml += `<img src="${p}" onclick="openLightbox(this.src)" alt="Thumbnail">`;
                         });
                         photosHtml += '</div>';
                     }
@@ -695,10 +715,7 @@
                 map.flyTo([filtered[0].lat, filtered[0].lng], 6);
             }
 
-            // 3. Render Tree View
             renderTreeView();
-
-            // 4. Render Timeline
             renderTimeline(filtered);
         }
 
@@ -722,7 +739,7 @@
                 for (let s in countryMap[c]) {
                     treeHtml += `<li class="tree-node">▸ ${s}<ul>`;
                     countryMap[c][s].forEach(p => {
-                        treeHtml += `<li class="tree-node" onclick="scrollToAndClose('post-${p.id}')">• ${p.place}</li>`;
+                        treeHtml += `<li class="tree-node" onclick="scrollToPost('post-${p.id}')">• ${p.place}</li>`;
                     });
                     treeHtml += '</ul></li>';
                 }
@@ -737,7 +754,7 @@
             timelineList.innerHTML = '';
             filtered.forEach(entry => {
                 timelineList.innerHTML += `
-                    <li class="timeline-item" onclick="scrollToAndClose('post-${entry.id}')">
+                    <li class="timeline-item" onclick="scrollToPost('post-${entry.id}')">
                         <div class="t-place"><b>${entry.place}</b>, ${entry.country}</div>
                         <div class="t-date">${entry.date}</div>
                     </li>
@@ -745,13 +762,12 @@
             });
         }
 
-        function scrollToAndClose(id) {
-            closeSidebar();
+        function scrollToPost(id) {
             const el = document.getElementById(id);
             if (el) el.scrollIntoView({ behavior: 'smooth' });
         }
 
-        // Gemini AI Integration
+        // Gemini AI Handler
         document.getElementById('aiBtn').addEventListener('click', async () => {
             const apiKey = document.getElementById('geminiApiKey').value.trim();
             const country = countrySel.value === 'Other' ? document.getElementById('customCountry').value : countrySel.value;
@@ -760,54 +776,50 @@
             const rawStory = document.getElementById('story').value;
 
             if (!apiKey) {
-                alert("Please paste your Gemini API Key in the box above first!");
+                alert("Please paste your Gemini API Key first!");
                 return;
             }
             if (!place || !country) {
-                alert("Please select or enter Country and Place first!");
+                alert("Please select Country and Place first!");
                 return;
             }
 
             const aiBtn = document.getElementById('aiBtn');
-            aiBtn.innerText = "⏳ Gemini is thinking...";
+            aiBtn.innerText = "⏳ Generating...";
             aiBtn.disabled = true;
 
-            const prompt = `You are a travel assistant. Generate travel details in valid JSON format for location: Place: ${place}, State: ${state}, Country: ${country}.
+            const prompt = `You are a travel assistant. Output JSON ONLY for: Place: ${place}, State: ${state}, Country: ${country}.
             User Notes: "${rawStory}".
-            Respond ONLY with a raw JSON object matching this schema:
+            JSON Schema:
             {
-                "countryFacts": "1-2 lines on currency, primary language, and location.",
-                "placeFacts": "4-5 lines about place speciality and must-sees.",
-                "polishedStory": "Rephrase and polish the user notes into an enjoyable travel story composition."
+                "countryFacts": "1-2 lines on currency, language, location.",
+                "placeFacts": "4-5 lines on speciality and must-sees.",
+                "polishedStory": "Rephrase notes into a enjoyable travel narrative."
             }`;
 
             try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: prompt }] }]
-                    })
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
                 });
 
-                const data = await response.json();
+                const data = await res.json();
                 const rawText = data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
                 const jsonResult = JSON.parse(rawText);
 
                 document.getElementById('story').value = jsonResult.polishedStory;
-                window.lastAiResult = jsonResult; // Store generated facts temporarily
-                alert("✨ Story polished and facts generated!");
+                window.lastAiResult = jsonResult;
+                alert("✨ AI polished story & facts ready!");
 
             } catch (err) {
-                console.error(err);
-                alert("Failed to connect to Gemini API. Check your API key or network.");
+                alert("Error connecting to Gemini API.");
             } finally {
                 aiBtn.innerText = "✨ Polish & Generate with AI";
                 aiBtn.disabled = false;
             }
         });
 
-        // Photo File Converter
         function readFiles(files) {
             return Promise.all(Array.from(files).map(file => {
                 return new Promise(resolve => {
@@ -818,19 +830,17 @@
             }));
         }
 
-        // Geocoding Helper
         async function fetchCoordinates(place, state, country) {
             const query = `${place}, ${state}, ${country}`;
-            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`;
             try {
-                const res = await fetch(url);
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
                 const data = await res.json();
                 if (data && data.length > 0) return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
             } catch (err) {}
             return { lat: 48.8912, lng: 11.1839 };
         }
 
-        // Submit Form
+        // Form Submit
         document.getElementById('travelForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
@@ -862,11 +872,11 @@
             };
 
             entries.unshift(newEntry);
-            window.lastAiResult = null; // reset AI cache
+            window.lastAiResult = null;
 
             renderUI();
             document.getElementById('travelForm').reset();
-            closeSidebar();
+            closeDrawer();
 
             btn.innerText = "Publish Memory";
             btn.disabled = false;
