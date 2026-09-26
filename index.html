@@ -111,11 +111,17 @@
             font-size: 0.95rem;
             font-family: inherit;
             outline: none;
+            background-color: #fff;
             transition: border 0.2s;
         }
 
-        input:focus, textarea:focus {
+        input:focus, textarea:focus, select:focus {
             border-color: var(--secondary);
+        }
+
+        .hidden-input {
+            display: none;
+            margin-top: 0.4rem;
         }
 
         button {
@@ -129,11 +135,17 @@
             width: 100%;
             cursor: pointer;
             box-shadow: 0 4px 10px rgba(255, 90, 95, 0.3);
-            transition: transform 0.1s;
+            transition: transform 0.1s, background-color 0.2s;
         }
 
         button:active {
             transform: scale(0.98);
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            box-shadow: none;
+            cursor: not-allowed;
         }
 
         /* Blog Post Card */
@@ -189,57 +201,72 @@
 
     <div class="container">
         
-        <!-- Section 1: Interactive Map -->
+        <!-- Interactive Map -->
         <h2 class="section-title">📍 Interactive World Map</h2>
         <div id="map"></div>
 
-        <!-- Section 2: Input Form -->
+        <!-- Input Form -->
         <h2 class="section-title">✍️ Add Travel Memory</h2>
         <div class="card">
             <form id="travelForm">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Country *</label>
-                        <input type="text" id="country" placeholder="e.g., Germany" required>
-                    </div>
-                    <div class="form-group">
-                        <label>State / Region *</label>
-                        <input type="text" id="state" placeholder="e.g., Bavaria" required>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Place / City *</label>
-                        <input type="text" id="place" placeholder="e.g., Eichstätt" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Travel Dates</label>
-                        <input type="text" id="duration" placeholder="e.g., Sept 2026 (3 days)">
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Latitude *</label>
-                        <input type="number" step="any" id="lat" placeholder="48.8912" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Longitude *</label>
-                        <input type="number" step="any" id="lng" placeholder="11.1839" required>
-                    </div>
-                </div>
-
+                
+                <!-- Country Dropdown -->
                 <div class="form-group">
-                    <label>Your Travel Experience / Story *</label>
-                    <textarea id="story" rows="3" placeholder="Tell us what you did, ate, or saw here..." required></textarea>
+                    <label>Country *</label>
+                    <select id="countrySelect" required>
+                        <option value="">-- Select Country --</option>
+                        <option value="Germany">Germany</option>
+                        <option value="France">France</option>
+                        <option value="Italy">Italy</option>
+                        <option value="Spain">Spain</option>
+                        <option value="Austria">Austria</option>
+                        <option value="Switzerland">Switzerland</option>
+                        <option value="Other">Other (Type manually)...</option>
+                    </select>
+                    <input type="text" id="customCountry" class="hidden-input" placeholder="Enter country name">
                 </div>
 
-                <button type="submit">+ Publish to Blog & Map</button>
+                <!-- State Dropdown -->
+                <div class="form-group">
+                    <label>State / Region *</label>
+                    <select id="stateSelect" required disabled>
+                        <option value="">-- Select Country First --</option>
+                    </select>
+                    <input type="text" id="customState" class="hidden-input" placeholder="Enter state/region name">
+                </div>
+
+                <!-- Place Dropdown -->
+                <div class="form-group">
+                    <label>Place / City *</label>
+                    <select id="placeSelect" required disabled>
+                        <option value="">-- Select State First --</option>
+                    </select>
+                    <input type="text" id="customPlace" class="hidden-input" placeholder="Enter city or place name">
+                </div>
+
+                <!-- Date Viewer & Days Stayed -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Date Visited *</label>
+                        <input type="date" id="visitDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Days Stayed (Optional)</label>
+                        <input type="number" id="stayDays" min="1" placeholder="e.g., 3">
+                    </div>
+                </div>
+
+                <!-- Story Input -->
+                <div class="form-group">
+                    <label>Your Experience / Notes *</label>
+                    <textarea id="story" rows="3" placeholder="Tell us what you visited or saw..." required></textarea>
+                </div>
+
+                <button type="submit" id="submitBtn">+ Auto-Locate & Publish Entry</button>
             </form>
         </div>
 
-        <!-- Section 3: Travel Feed -->
+        <!-- Travel Feed -->
         <h2 class="section-title">📖 Travel Journal</h2>
         <div id="postsContainer"></div>
 
@@ -249,45 +276,144 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
-        // 1. Initialize Map centered on Europe
-        const map = L.map('map').setView([48.8912, 11.1839], 5);
+        // Preset Database for Cascading Dropdowns
+        const locationDB = {
+            "Germany": {
+                "Bavaria": ["Eichstätt", "Munich", "Nuremberg", "Rothenburg ob der Tauber"],
+                "Berlin": ["Berlin City Center", "Spandau"],
+                "Baden-Württemberg": ["Stuttgart", "Heidelberg", "Freiburg"]
+            },
+            "France": {
+                "Île-de-France": ["Paris", "Versailles"],
+                "Provence-Alpes-Côte d'Azur": ["Nice", "Marseille"]
+            },
+            "Italy": {
+                "Lazio": ["Rome"],
+                "Tuscany": ["Florence", "Pisa"],
+                "Veneto": ["Venice"]
+            }
+        };
 
-        // Add OpenStreetMap tiles
+        // DOM elements
+        const countrySel = document.getElementById('countrySelect');
+        const stateSel = document.getElementById('stateSelect');
+        const placeSel = document.getElementById('placeSelect');
+
+        const customCountry = document.getElementById('customCountry');
+        const customState = document.getElementById('customState');
+        const customPlace = document.getElementById('customPlace');
+
+        // Handle Country Change
+        countrySel.addEventListener('change', () => {
+            const country = countrySel.value;
+            stateSel.innerHTML = '<option value="">-- Select State --</option>';
+            placeSel.innerHTML = '<option value="">-- Select Place --</option>';
+            placeSel.disabled = true;
+
+            if (country === 'Other') {
+                customCountry.style.display = 'block';
+                customCountry.required = true;
+                enableCustomState();
+            } else {
+                customCountry.style.display = 'none';
+                customCountry.required = false;
+
+                if (locationDB[country]) {
+                    stateSel.disabled = false;
+                    Object.keys(locationDB[country]).forEach(st => {
+                        stateSel.innerHTML += `<option value="${st}">${st}</option>`;
+                    });
+                    stateSel.innerHTML += `<option value="Other">Other (Type manually)...</option>`;
+                } else {
+                    enableCustomState();
+                }
+            }
+        });
+
+        // Handle State Change
+        stateSel.addEventListener('change', () => {
+            const country = countrySel.value;
+            const state = stateSel.value;
+            placeSel.innerHTML = '<option value="">-- Select Place --</option>';
+
+            if (state === 'Other') {
+                enableCustomState();
+                enableCustomPlace();
+            } else {
+                customState.style.display = 'none';
+                customState.required = false;
+
+                if (locationDB[country] && locationDB[country][state]) {
+                    placeSel.disabled = false;
+                    locationDB[country][state].forEach(pl => {
+                        placeSel.innerHTML += `<option value="${pl}">${pl}</option>`;
+                    });
+                    placeSel.innerHTML += `<option value="Other">Other (Type manually)...</option>`;
+                } else {
+                    enableCustomPlace();
+                }
+            }
+        });
+
+        // Handle Place Change
+        placeSel.addEventListener('change', () => {
+            if (placeSel.value === 'Other') {
+                enableCustomPlace();
+            } else {
+                customPlace.style.display = 'none';
+                customPlace.required = false;
+            }
+        });
+
+        function enableCustomState() {
+            stateSel.disabled = false;
+            customState.style.display = 'block';
+            customState.required = true;
+        }
+
+        function enableCustomPlace() {
+            placeSel.disabled = false;
+            customPlace.style.display = 'block';
+            customPlace.required = true;
+        }
+
+        // Initialize Map centered on Europe
+        const map = L.map('map').setView([48.8912, 11.1839], 5);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        // Array to store entry posts
+        // Posts Memory
         const entries = [
             {
                 country: "Germany",
                 state: "Bavaria",
                 place: "Eichstätt",
-                duration: "Current Destination",
+                date: "2026-09-20",
+                days: "3 days",
                 lat: 48.8912,
                 lng: 11.1839,
-                story: "Exploring the historic town of Eichstätt in the heart of Altmühltal Nature Park. Known for its Baroque architecture and scenic surroundings."
+                story: "Exploring the historic town of Eichstätt in the heart of Altmühltal Nature Park. Famous for baroque architecture and peaceful river valley views."
             }
         ];
 
-        // Function to render markers and posts
         function renderEntries() {
             const container = document.getElementById('postsContainer');
             container.innerHTML = '';
 
             entries.forEach(entry => {
-                // Add Marker to Map
                 const marker = L.marker([entry.lat, entry.lng]).addTo(map);
                 marker.bindPopup(`<b>${entry.place}</b><br>${entry.state}, ${entry.country}`);
 
-                // Add Card to Feed
+                const durationText = entry.days ? ` (${entry.days})` : '';
+
                 const postHtml = `
                     <div class="post-card">
                         <div class="post-header">
                             <span class="post-title">📍 ${entry.place}, ${entry.state}</span>
                             <span class="badge">${entry.country}</span>
                         </div>
-                        <div class="post-meta">🗓️ ${entry.duration || 'Visited'}</div>
+                        <div class="post-meta">🗓️ ${entry.date}${durationText}</div>
                         <p class="post-body">${entry.story}</p>
                     </div>
                 `;
@@ -295,33 +421,70 @@
             });
         }
 
-        // Render Initial Eichstätt entry
         renderEntries();
 
-        // Handle Form Submission
-        document.getElementById('travelForm').addEventListener('submit', function(e) {
+        // Helper: Geocoding API to turn place string into Lat/Lng automatically
+        async function fetchCoordinates(place, state, country) {
+            const query = `${place}, ${state}, ${country}`;
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`;
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                if (data && data.length > 0) {
+                    return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+                }
+            } catch (err) {
+                console.error("Geocoding failed", err);
+            }
+            return null; // Fallback if location not found
+        }
+
+        // Form Submission
+        document.getElementById('travelForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerText = "⏳ Finding Location on Map...";
+
+            const finalCountry = countrySel.value === 'Other' ? customCountry.value : countrySel.value;
+            const finalState = stateSel.value === 'Other' ? customState.value : stateSel.value;
+            const finalPlace = placeSel.value === 'Other' ? customPlace.value : placeSel.value;
+
+            // Fetch coordinates automatically
+            let coords = await fetchCoordinates(finalPlace, finalState, finalCountry);
+
+            if (!coords) {
+                alert("Could not automatically locate this place. Defaulting map center.");
+                coords = { lat: 48.8912, lng: 11.1839 };
+            }
+
+            const daysVal = document.getElementById('stayDays').value;
+
             const newEntry = {
-                country: document.getElementById('country').value,
-                state: document.getElementById('state').value,
-                place: document.getElementById('place').value,
-                duration: document.getElementById('duration').value,
-                lat: parseFloat(document.getElementById('lat').value),
-                lng: parseFloat(document.getElementById('lng').value),
+                country: finalCountry,
+                state: finalState,
+                place: finalPlace,
+                date: document.getElementById('visitDate').value,
+                days: daysVal ? `${daysVal} days` : '',
+                lat: coords.lat,
+                lng: coords.lng,
                 story: document.getElementById('story').value
             };
 
-            // Add to entries list and refresh UI
             entries.unshift(newEntry);
-            
-            // Recenter map to new marker
-            map.flyTo([newEntry.lat, newEntry.lng], 8);
-
+            map.flyTo([coords.lat, coords.lng], 8);
             renderEntries();
 
-            // Clear Form
+            // Reset Form & Button
             document.getElementById('travelForm').reset();
+            stateSel.disabled = true;
+            placeSel.disabled = true;
+            customCountry.style.display = 'none';
+            customState.style.display = 'none';
+            customPlace.style.display = 'none';
+            btn.disabled = false;
+            btn.innerText = "+ Auto-Locate & Publish Entry";
         });
     </script>
 </body>
