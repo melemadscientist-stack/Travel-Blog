@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wanderlust Journal</title>
     
-    <!-- Leaflet.js CSS (For Interactive Maps) -->
+    <!-- Leaflet.js CSS (Interactive Maps) -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
     <style>
@@ -14,7 +14,8 @@
             --secondary: #00A699; /* Deep Teal */
             --accent: #FFB400;    /* Sunshine Yellow */
             --dark: #2C3E50;      /* Dark Slate */
-            --bg: #FFFDF9;        /* Warm Cream */
+            --bg: #F8F9FA;        /* Clean Light Background */
+            --card-bg: #FFFFFF;
         }
 
         * {
@@ -27,59 +28,273 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background-color: var(--bg);
             color: var(--dark);
-            padding-bottom: 3rem;
+            padding-bottom: 4rem;
         }
 
-        header {
-            background: linear-gradient(135deg, var(--primary), var(--accent));
+        /* --- TOP NAVBAR --- */
+        navbar {
+            background: linear-gradient(135deg, var(--primary), #e0484d);
             color: white;
-            padding: 2rem 1rem;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 0.8rem 1.2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
         }
 
-        header h1 {
-            font-size: 2rem;
+        .nav-brand {
+            font-weight: bold;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
         }
 
-        header p {
-            font-size: 0.95rem;
-            margin-top: 0.3rem;
-            opacity: 0.95;
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
         }
 
+        .country-dropdown {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.4);
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            outline: none;
+        }
+
+        .country-dropdown option {
+            color: var(--dark);
+            background: white;
+        }
+
+        .btn-add {
+            background-color: var(--accent);
+            color: var(--dark);
+            border: none;
+            padding: 7px 14px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        /* --- MAIN LAYOUT --- */
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             padding: 1rem;
         }
 
-        .section-title {
-            font-size: 1.3rem;
-            color: var(--dark);
-            margin: 1.5rem 0 0.8rem 0;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+        /* Map & Top Widget Layout */
+        .top-section {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
         }
 
-        /* Map Container */
+        @media (min-width: 768px) {
+            .top-section {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+
         #map {
-            height: 350px;
-            width: 100%;
+            height: 300px;
             border-radius: 16px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
             z-index: 1;
         }
 
-        /* Entry Form Card */
-        .card {
-            background: white;
+        /* --- TIMELINE VIEW --- */
+        .timeline-card {
+            background: var(--card-bg);
             border-radius: 16px;
+            padding: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .timeline-title {
+            font-size: 1rem;
+            font-weight: bold;
+            margin-bottom: 0.8rem;
+            color: var(--secondary);
+        }
+
+        .timeline-list {
+            list-style: none;
+            border-left: 2px solid #E0E0E0;
+            padding-left: 1rem;
+            margin-left: 0.5rem;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 0.8rem;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -1.35rem;
+            top: 4px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--primary);
+        }
+
+        .timeline-date {
+            font-size: 0.75rem;
+            color: #888;
+        }
+
+        /* --- POST CARDS & GALLERY --- */
+        .section-header {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin: 1.5rem 0 1rem 0;
+            color: var(--dark);
+        }
+
+        .latest-badge {
+            background: var(--primary);
+            color: white;
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+        }
+
+        .post-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            margin-bottom: 1.5rem;
+            border: 1px solid #EFEFEF;
+        }
+
+        .post-card.featured {
+            border: 2px solid var(--secondary);
+        }
+
+        .hero-photo {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            display: block;
+            background-color: #eee;
+        }
+
+        .post-content {
             padding: 1.2rem;
-            margin-top: 1rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-            border-top: 5px solid var(--secondary);
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.4rem;
+        }
+
+        .post-title {
+            font-size: 1.3rem;
+            color: var(--dark);
+            font-weight: bold;
+        }
+
+        .post-meta {
+            font-size: 0.85rem;
+            color: #777;
+            margin-bottom: 0.8rem;
+        }
+
+        .post-story {
+            line-height: 1.6;
+            color: #444;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Photo Thumbnails Grid */
+        .thumbnail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+            gap: 0.5rem;
+            margin-top: 0.8rem;
+        }
+
+        .thumbnail-grid img {
+            width: 100%;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 1px solid #ddd;
+        }
+
+        /* --- COLLAPSIBLE SIDE DRAWER --- */
+        .drawer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            z-index: 2000;
+        }
+
+        .drawer {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 85%;
+            max-width: 400px;
+            height: 100%;
+            background: white;
+            z-index: 2001;
+            box-shadow: -4px 0 20px rgba(0,0,0,0.2);
+            transition: right 0.3s ease;
+            overflow-y: auto;
+            padding: 1.5rem;
+        }
+
+        .drawer.open {
+            right: 0;
+        }
+
+        .drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.2rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 1px solid #EEE;
+        }
+
+        .drawer-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
         }
 
         .form-group {
@@ -90,7 +305,6 @@
             display: block;
             font-size: 0.85rem;
             font-weight: bold;
-            color: var(--dark);
             margin-bottom: 0.3rem;
         }
 
@@ -103,20 +317,14 @@
             flex: 1;
         }
 
-        input, textarea, select {
+        input, select, textarea {
             width: 100%;
-            padding: 10px 12px;
-            border: 1.5px solid #E0E0E0;
+            padding: 10px;
+            border: 1.5px solid #DDD;
             border-radius: 8px;
-            font-size: 0.95rem;
-            font-family: inherit;
+            font-size: 0.9rem;
             outline: none;
-            background-color: #fff;
-            transition: border 0.2s;
-        }
-
-        input:focus, textarea:focus, select:focus {
-            border-color: var(--secondary);
+            background: #fff;
         }
 
         .hidden-input {
@@ -124,150 +332,109 @@
             margin-top: 0.4rem;
         }
 
-        button {
-            background-color: var(--primary);
+        .btn-submit {
+            background: var(--primary);
             color: white;
             border: none;
-            padding: 14px;
+            padding: 12px;
             border-radius: 8px;
             font-weight: bold;
-            font-size: 1rem;
             width: 100%;
             cursor: pointer;
-            box-shadow: 0 4px 10px rgba(255, 90, 95, 0.3);
-            transition: transform 0.1s, background-color 0.2s;
-        }
-
-        button:active {
-            transform: scale(0.98);
-        }
-
-        button:disabled {
-            background-color: #ccc;
-            box-shadow: none;
-            cursor: not-allowed;
-        }
-
-        /* Blog Post Card */
-        .post-card {
-            background: white;
-            border-radius: 12px;
-            padding: 1.2rem;
-            margin-top: 1rem;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            border-left: 5px solid var(--accent);
-        }
-
-        .post-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.5rem;
-        }
-
-        .badge {
-            background-color: #E8F5E9;
-            color: #2E7D32;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: bold;
-        }
-
-        .post-title {
-            font-size: 1.2rem;
-            color: var(--dark);
-        }
-
-        .post-meta {
-            font-size: 0.85rem;
-            color: #666;
-            margin-bottom: 0.8rem;
-        }
-
-        .post-body {
-            line-height: 1.5;
-            color: #444;
-            font-size: 0.95rem;
+            margin-top: 0.5rem;
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>🗺️ Wanderlust Journal</h1>
-        <p>Documenting travels, one pin at a time</p>
-    </header>
+    <!-- TOP NAVIGATION BAR -->
+    <navbar>
+        <div class="nav-brand">🌍 Travel Journal</div>
+        <div class="nav-actions">
+            <select id="countryFilter" class="country-dropdown">
+                <option value="ALL">All Countries</option>
+            </select>
+            <button class="btn-add" id="openDrawerBtn">+ Add Memory</button>
+        </div>
+    </navbar>
 
+    <!-- COLLAPSIBLE FORM DRAWER -->
+    <div class="drawer-overlay" id="drawerOverlay"></div>
+    <div class="drawer" id="drawer">
+        <div class="drawer-header">
+            <h3>✍️ New Travel Entry</h3>
+            <button class="drawer-close" id="closeDrawerBtn">&times;</button>
+        </div>
+        <form id="travelForm">
+            <div class="form-group">
+                <label>Country *</label>
+                <select id="countrySelect" required>
+                    <option value="">-- Select Country --</option>
+                    <option value="Germany">Germany</option>
+                    <option value="France">France</option>
+                    <option value="Italy">Italy</option>
+                    <option value="Spain">Spain</option>
+                    <option value="Other">Other...</option>
+                </select>
+                <input type="text" id="customCountry" class="hidden-input" placeholder="Type country">
+            </div>
+
+            <div class="form-group">
+                <label>State / Region *</label>
+                <select id="stateSelect" required disabled>
+                    <option value="">-- Select Country First --</option>
+                </select>
+                <input type="text" id="customState" class="hidden-input" placeholder="Type state">
+            </div>
+
+            <div class="form-group">
+                <label>Place / City *</label>
+                <select id="placeSelect" required disabled>
+                    <option value="">-- Select State First --</option>
+                </select>
+                <input type="text" id="customPlace" class="hidden-input" placeholder="Type place">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Date Visited *</label>
+                    <input type="date" id="visitDate" required>
+                </div>
+                <div class="form-group">
+                    <label>Stay Days</label>
+                    <input type="number" id="stayDays" placeholder="e.g. 3">
+                </div>
+            </div>
+
+            <!-- Photos Upload Input -->
+            <div class="form-group">
+                <label>Upload Photos (Select Multiple)</label>
+                <input type="file" id="photoInput" accept="image/*" multiple>
+            </div>
+
+            <div class="form-group">
+                <label>Experience / Story *</label>
+                <textarea id="story" rows="3" placeholder="What did you visit or experience?" required></textarea>
+            </div>
+
+            <button type="submit" class="btn-submit" id="submitBtn">Publish Memory</button>
+        </form>
+    </div>
+
+    <!-- MAIN PAGE CONTENT -->
     <div class="container">
         
-        <!-- Interactive Map -->
-        <h2 class="section-title">📍 Interactive World Map</h2>
-        <div id="map"></div>
-
-        <!-- Input Form -->
-        <h2 class="section-title">✍️ Add Travel Memory</h2>
-        <div class="card">
-            <form id="travelForm">
-                
-                <!-- Country Dropdown -->
-                <div class="form-group">
-                    <label>Country *</label>
-                    <select id="countrySelect" required>
-                        <option value="">-- Select Country --</option>
-                        <option value="Germany">Germany</option>
-                        <option value="France">France</option>
-                        <option value="Italy">Italy</option>
-                        <option value="Spain">Spain</option>
-                        <option value="Austria">Austria</option>
-                        <option value="Switzerland">Switzerland</option>
-                        <option value="Other">Other (Type manually)...</option>
-                    </select>
-                    <input type="text" id="customCountry" class="hidden-input" placeholder="Enter country name">
-                </div>
-
-                <!-- State Dropdown -->
-                <div class="form-group">
-                    <label>State / Region *</label>
-                    <select id="stateSelect" required disabled>
-                        <option value="">-- Select Country First --</option>
-                    </select>
-                    <input type="text" id="customState" class="hidden-input" placeholder="Enter state/region name">
-                </div>
-
-                <!-- Place Dropdown -->
-                <div class="form-group">
-                    <label>Place / City *</label>
-                    <select id="placeSelect" required disabled>
-                        <option value="">-- Select State First --</option>
-                    </select>
-                    <input type="text" id="customPlace" class="hidden-input" placeholder="Enter city or place name">
-                </div>
-
-                <!-- Date Viewer & Days Stayed -->
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Date Visited *</label>
-                        <input type="date" id="visitDate" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Days Stayed (Optional)</label>
-                        <input type="number" id="stayDays" min="1" placeholder="e.g., 3">
-                    </div>
-                </div>
-
-                <!-- Story Input -->
-                <div class="form-group">
-                    <label>Your Experience / Notes *</label>
-                    <textarea id="story" rows="3" placeholder="Tell us what you visited or saw..." required></textarea>
-                </div>
-
-                <button type="submit" id="submitBtn">+ Auto-Locate & Publish Entry</button>
-            </form>
+        <!-- Top Section: Map & Timeline -->
+        <div class="top-section">
+            <div id="map"></div>
+            <div class="timeline-card">
+                <div class="timeline-title">⏳ Travel Timeline</div>
+                <ul class="timeline-list" id="timelineList"></ul>
+            </div>
         </div>
 
-        <!-- Travel Feed -->
-        <h2 class="section-title">📖 Travel Journal</h2>
+        <!-- Feed Section -->
+        <div class="section-header" id="feedHeader">Latest Visited Place</div>
         <div id="postsContainer"></div>
 
     </div>
@@ -279,113 +446,22 @@
         // Preset Database for Cascading Dropdowns
         const locationDB = {
             "Germany": {
-                "Bavaria": ["Eichstätt", "Munich", "Nuremberg", "Rothenburg ob der Tauber"],
-                "Berlin": ["Berlin City Center", "Spandau"],
-                "Baden-Württemberg": ["Stuttgart", "Heidelberg", "Freiburg"]
+                "Bavaria": ["Eichstätt", "Munich", "Nuremberg"],
+                "Berlin": ["Berlin City Center"]
             },
             "France": {
-                "Île-de-France": ["Paris", "Versailles"],
-                "Provence-Alpes-Côte d'Azur": ["Nice", "Marseille"]
+                "Île-de-France": ["Paris"]
             },
             "Italy": {
                 "Lazio": ["Rome"],
-                "Tuscany": ["Florence", "Pisa"],
-                "Veneto": ["Venice"]
+                "Tuscany": ["Florence"]
             }
         };
 
-        // DOM elements
-        const countrySel = document.getElementById('countrySelect');
-        const stateSel = document.getElementById('stateSelect');
-        const placeSel = document.getElementById('placeSelect');
-
-        const customCountry = document.getElementById('customCountry');
-        const customState = document.getElementById('customState');
-        const customPlace = document.getElementById('customPlace');
-
-        // Handle Country Change
-        countrySel.addEventListener('change', () => {
-            const country = countrySel.value;
-            stateSel.innerHTML = '<option value="">-- Select State --</option>';
-            placeSel.innerHTML = '<option value="">-- Select Place --</option>';
-            placeSel.disabled = true;
-
-            if (country === 'Other') {
-                customCountry.style.display = 'block';
-                customCountry.required = true;
-                enableCustomState();
-            } else {
-                customCountry.style.display = 'none';
-                customCountry.required = false;
-
-                if (locationDB[country]) {
-                    stateSel.disabled = false;
-                    Object.keys(locationDB[country]).forEach(st => {
-                        stateSel.innerHTML += `<option value="${st}">${st}</option>`;
-                    });
-                    stateSel.innerHTML += `<option value="Other">Other (Type manually)...</option>`;
-                } else {
-                    enableCustomState();
-                }
-            }
-        });
-
-        // Handle State Change
-        stateSel.addEventListener('change', () => {
-            const country = countrySel.value;
-            const state = stateSel.value;
-            placeSel.innerHTML = '<option value="">-- Select Place --</option>';
-
-            if (state === 'Other') {
-                enableCustomState();
-                enableCustomPlace();
-            } else {
-                customState.style.display = 'none';
-                customState.required = false;
-
-                if (locationDB[country] && locationDB[country][state]) {
-                    placeSel.disabled = false;
-                    locationDB[country][state].forEach(pl => {
-                        placeSel.innerHTML += `<option value="${pl}">${pl}</option>`;
-                    });
-                    placeSel.innerHTML += `<option value="Other">Other (Type manually)...</option>`;
-                } else {
-                    enableCustomPlace();
-                }
-            }
-        });
-
-        // Handle Place Change
-        placeSel.addEventListener('change', () => {
-            if (placeSel.value === 'Other') {
-                enableCustomPlace();
-            } else {
-                customPlace.style.display = 'none';
-                customPlace.required = false;
-            }
-        });
-
-        function enableCustomState() {
-            stateSel.disabled = false;
-            customState.style.display = 'block';
-            customState.required = true;
-        }
-
-        function enableCustomPlace() {
-            placeSel.disabled = false;
-            customPlace.style.display = 'block';
-            customPlace.required = true;
-        }
-
-        // Initialize Map centered on Europe
-        const map = L.map('map').setView([48.8912, 11.1839], 5);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap contributors'
-        }).addTo(map);
-
-        // Posts Memory
-        const entries = [
+        // Default Sample Memory
+        let entries = [
             {
+                id: 1,
                 country: "Germany",
                 state: "Bavaria",
                 place: "Eichstätt",
@@ -393,75 +469,249 @@
                 days: "3 days",
                 lat: 48.8912,
                 lng: 11.1839,
-                story: "Exploring the historic town of Eichstätt in the heart of Altmühltal Nature Park. Famous for baroque architecture and peaceful river valley views."
+                story: "Exploring the historic town of Eichstätt in the heart of Altmühltal Nature Park. Known for Baroque architecture and picturesque valley river views.",
+                photos: [
+                    "https://images.unsplash.com/photo-1599946347371-68eb71b16afc?auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=300&q=80"
+                ]
             }
         ];
 
-        function renderEntries() {
-            const container = document.getElementById('postsContainer');
-            container.innerHTML = '';
+        // Leaflet Map Initialization
+        const map = L.map('map').setView([48.8912, 11.1839], 5);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap'
+        }).addTo(map);
 
-            entries.forEach(entry => {
+        let mapMarkers = [];
+
+        // Drawer Controls
+        const drawer = document.getElementById('drawer');
+        const drawerOverlay = document.getElementById('drawerOverlay');
+        
+        document.getElementById('openDrawerBtn').onclick = () => {
+            drawer.classList.add('open');
+            drawerOverlay.style.display = 'block';
+        };
+
+        const closeDrawer = () => {
+            drawer.classList.remove('open');
+            drawerOverlay.style.display = 'none';
+        };
+
+        document.getElementById('closeDrawerBtn').onclick = closeDrawer;
+        drawerOverlay.onclick = closeDrawer;
+
+        // Cascading Dropdown Logic
+        const countrySel = document.getElementById('countrySelect');
+        const stateSel = document.getElementById('stateSelect');
+        const placeSel = document.getElementById('placeSelect');
+
+        countrySel.addEventListener('change', () => {
+            const country = countrySel.value;
+            stateSel.innerHTML = '<option value="">-- Select State --</option>';
+            placeSel.innerHTML = '<option value="">-- Select Place --</option>';
+            placeSel.disabled = true;
+
+            if (country === 'Other') {
+                enableCustomInput('customCountry', true);
+                enableCustomInput('customState', true);
+                enableCustomInput('customPlace', true);
+                stateSel.disabled = false;
+                placeSel.disabled = false;
+            } else if (locationDB[country]) {
+                enableCustomInput('customCountry', false);
+                stateSel.disabled = false;
+                Object.keys(locationDB[country]).forEach(st => {
+                    stateSel.innerHTML += `<option value="${st}">${st}</option>`;
+                });
+                stateSel.innerHTML += `<option value="Other">Other...</option>`;
+            }
+        });
+
+        stateSel.addEventListener('change', () => {
+            const country = countrySel.value;
+            const state = stateSel.value;
+            placeSel.innerHTML = '<option value="">-- Select Place --</option>';
+
+            if (state === 'Other') {
+                enableCustomInput('customState', true);
+                enableCustomInput('customPlace', true);
+                placeSel.disabled = false;
+            } else if (locationDB[country] && locationDB[country][state]) {
+                enableCustomInput('customState', false);
+                placeSel.disabled = false;
+                locationDB[country][state].forEach(pl => {
+                    placeSel.innerHTML += `<option value="${pl}">${pl}</option>`;
+                });
+                placeSel.innerHTML += `<option value="Other">Other...</option>`;
+            }
+        });
+
+        placeSel.addEventListener('change', () => {
+            if (placeSel.value === 'Other') {
+                enableCustomInput('customPlace', true);
+            } else {
+                enableCustomInput('customPlace', false);
+            }
+        });
+
+        function enableCustomInput(id, show) {
+            const el = document.getElementById(id);
+            el.style.display = show ? 'block' : 'none';
+            el.required = show;
+        }
+
+        // Render Everything UI (Feed, Timeline, Map Pins, Top Nav)
+        function renderUI(filterCountry = "ALL") {
+            // Sort entries chronologically (Latest First)
+            entries.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            // Clear Markers
+            mapMarkers.forEach(m => map.removeLayer(m));
+            mapMarkers = [];
+
+            // Populate Top Country Filter Dropdown
+            const countryFilter = document.getElementById('countryFilter');
+            const uniqueCountries = [...new Set(entries.map(e => e.country))];
+            countryFilter.innerHTML = '<option value="ALL">All Countries</option>';
+            uniqueCountries.forEach(c => {
+                const selected = c === filterCountry ? 'selected' : '';
+                countryFilter.innerHTML += `<option value="${c}" ${selected}>${c}</option>`;
+            });
+
+            // Filter Entries
+            const filteredEntries = filterCountry === "ALL" 
+                ? entries 
+                : entries.filter(e => e.country === filterCountry);
+
+            // 1. Render Posts
+            const postsContainer = document.getElementById('postsContainer');
+            postsContainer.innerHTML = '';
+
+            filteredEntries.forEach((entry, index) => {
+                // Add Map Pins
                 const marker = L.marker([entry.lat, entry.lng]).addTo(map);
                 marker.bindPopup(`<b>${entry.place}</b><br>${entry.state}, ${entry.country}`);
+                mapMarkers.push(marker);
 
-                const durationText = entry.days ? ` (${entry.days})` : '';
+                const isFeatured = index === 0;
+                const heroPhoto = entry.photos && entry.photos.length > 0 
+                    ? entry.photos[0] 
+                    : 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=800&q=80';
 
-                const postHtml = `
-                    <div class="post-card">
-                        <div class="post-header">
-                            <span class="post-title">📍 ${entry.place}, ${entry.state}</span>
-                            <span class="badge">${entry.country}</span>
+                // Render Thumbnails for additional photos
+                let thumbnailsHtml = '';
+                if (entry.photos && entry.photos.length > 1) {
+                    thumbnailsHtml = '<div class="thumbnail-grid">';
+                    entry.photos.forEach(photoUrl => {
+                        thumbnailsHtml += `<img src="${photoUrl}" onclick="swapHeroImage(this, 'hero-${entry.id}')" alt="Thumbnail">`;
+                    });
+                    thumbnailsHtml += '</div>';
+                }
+
+                const cardHtml = `
+                    <div class="post-card ${isFeatured ? 'featured' : ''}" id="post-${entry.id}">
+                        <img src="${heroPhoto}" class="hero-photo" id="hero-${entry.id}" alt="${entry.place}">
+                        <div class="post-content">
+                            ${isFeatured ? '<span class="latest-badge">✨ Most Recent Visit</span>' : ''}
+                            <div class="post-header">
+                                <div class="post-title">📍 ${entry.place}, ${entry.state}</div>
+                            </div>
+                            <div class="post-meta">🗓️ ${entry.date} ${entry.days ? '• ' + entry.days : ''} | <b>${entry.country}</b></div>
+                            <p class="post-story">${entry.story}</p>
+                            ${thumbnailsHtml}
                         </div>
-                        <div class="post-meta">🗓️ ${entry.date}${durationText}</div>
-                        <p class="post-body">${entry.story}</p>
                     </div>
                 `;
-                container.innerHTML += postHtml;
+                postsContainer.innerHTML += cardHtml;
+            });
+
+            // Recenter map on latest entry if available
+            if (filteredEntries.length > 0) {
+                map.flyTo([filteredEntries[0].lat, filteredEntries[0].lng], 6);
+            }
+
+            // 2. Render Timeline
+            const timelineList = document.getElementById('timelineList');
+            timelineList.innerHTML = '';
+            filteredEntries.forEach(entry => {
+                timelineList.innerHTML += `
+                    <li class="timeline-item" onclick="scrollToPost('post-${entry.id}')">
+                        <div><b>${entry.place}</b>, ${entry.country}</div>
+                        <div class="timeline-date">${entry.date}</div>
+                    </li>
+                `;
             });
         }
 
-        renderEntries();
+        // Swap Hero Image when Thumbnail is Tapped
+        function swapHeroImage(thumbEl, heroId) {
+            document.getElementById(heroId).src = thumbEl.src;
+        }
 
-        // Helper: Geocoding API to turn place string into Lat/Lng automatically
+        function scrollToPost(postId) {
+            const el = document.getElementById(postId);
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Filter Dropdown Change Listener
+        document.getElementById('countryFilter').addEventListener('change', (e) => {
+            renderUI(e.target.value);
+        });
+
+        // Helper: Convert File objects to Base64 preview URLs
+        function readFilesAsDataURLs(files) {
+            return Promise.all(Array.from(files).map(file => {
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => resolve(e.target.result);
+                    reader.readAsDataURL(file);
+                });
+            }));
+        }
+
+        // Geocoding Helper API
         async function fetchCoordinates(place, state, country) {
             const query = `${place}, ${state}, ${country}`;
             const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`;
             try {
-                const response = await fetch(url);
-                const data = await response.json();
+                const res = await fetch(url);
+                const data = await res.json();
                 if (data && data.length > 0) {
                     return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
                 }
             } catch (err) {
                 console.error("Geocoding failed", err);
             }
-            return null; // Fallback if location not found
+            return { lat: 48.8912, lng: 11.1839 };
         }
 
-        // Form Submission
+        // Form Submit Handler
         document.getElementById('travelForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-
             const btn = document.getElementById('submitBtn');
             btn.disabled = true;
-            btn.innerText = "⏳ Finding Location on Map...";
+            btn.innerText = "Processing Photos & GPS...";
 
-            const finalCountry = countrySel.value === 'Other' ? customCountry.value : countrySel.value;
-            const finalState = stateSel.value === 'Other' ? customState.value : stateSel.value;
-            const finalPlace = placeSel.value === 'Other' ? customPlace.value : placeSel.value;
+            const finalCountry = countrySel.value === 'Other' ? document.getElementById('customCountry').value : countrySel.value;
+            const finalState = stateSel.value === 'Other' ? document.getElementById('customState').value : stateSel.value;
+            const finalPlace = placeSel.value === 'Other' ? document.getElementById('customPlace').value : placeSel.value;
 
-            // Fetch coordinates automatically
-            let coords = await fetchCoordinates(finalPlace, finalState, finalCountry);
-
-            if (!coords) {
-                alert("Could not automatically locate this place. Defaulting map center.");
-                coords = { lat: 48.8912, lng: 11.1839 };
+            // Handle Photo Files
+            const photoFiles = document.getElementById('photoInput').files;
+            let photoUrls = [];
+            if (photoFiles.length > 0) {
+                photoUrls = await readFilesAsDataURLs(photoFiles);
             }
+
+            // Fetch Map Coordinates
+            const coords = await fetchCoordinates(finalPlace, finalState, finalCountry);
 
             const daysVal = document.getElementById('stayDays').value;
 
             const newEntry = {
+                id: Date.now(),
                 country: finalCountry,
                 state: finalState,
                 place: finalPlace,
@@ -469,23 +719,22 @@
                 days: daysVal ? `${daysVal} days` : '',
                 lat: coords.lat,
                 lng: coords.lng,
-                story: document.getElementById('story').value
+                story: document.getElementById('story').value,
+                photos: photoUrls
             };
 
-            entries.unshift(newEntry);
-            map.flyTo([coords.lat, coords.lng], 8);
-            renderEntries();
+            entries.push(newEntry);
+            renderUI();
 
-            // Reset Form & Button
+            // Reset & Close Drawer
             document.getElementById('travelForm').reset();
-            stateSel.disabled = true;
-            placeSel.disabled = true;
-            customCountry.style.display = 'none';
-            customState.style.display = 'none';
-            customPlace.style.display = 'none';
+            closeDrawer();
             btn.disabled = false;
-            btn.innerText = "+ Auto-Locate & Publish Entry";
+            btn.innerText = "Publish Memory";
         });
+
+        // Initial Render
+        renderUI();
     </script>
 </body>
 </html>
