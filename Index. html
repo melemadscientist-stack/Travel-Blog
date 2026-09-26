@@ -3,23 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Wanderlust Travel Blog</title>
+    <title>Wanderlust Journal</title>
+    
+    <!-- Leaflet.js CSS (For Interactive Maps) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
     <style>
-        /* Vibrant Travel Color Palette */
         :root {
             --primary: #FF5A5F;   /* Energetic Coral */
             --secondary: #00A699; /* Deep Teal */
-            --accent: #FFB400;    /* Vibrant Sunshine Yellow */
-            --bg: #FFFDF9;        /* Warm Cream background */
-            --text: #2C3E50;      /* Dark Slate for readability */
+            --accent: #FFB400;    /* Sunshine Yellow */
+            --dark: #2C3E50;      /* Dark Slate */
+            --bg: #FFFDF9;        /* Warm Cream */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 0;
+            color: var(--dark);
+            padding-bottom: 3rem;
         }
 
         header {
@@ -31,72 +39,290 @@
         }
 
         header h1 {
-            margin: 0;
-            font-size: 2.2rem;
+            font-size: 2rem;
         }
 
         header p {
-            margin-top: 0.5rem;
-            opacity: 0.9;
+            font-size: 0.95rem;
+            margin-top: 0.3rem;
+            opacity: 0.95;
         }
 
-        main {
-            padding: 1.5rem;
+        .container {
             max-width: 800px;
             margin: 0 auto;
+            padding: 1rem;
         }
 
+        .section-title {
+            font-size: 1.3rem;
+            color: var(--dark);
+            margin: 1.5rem 0 0.8rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Map Container */
+        #map {
+            height: 350px;
+            width: 100%;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            z-index: 1;
+        }
+
+        /* Entry Form Card */
         .card {
             background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            border-left: 5px solid var(--secondary);
+            border-radius: 16px;
+            padding: 1.2rem;
+            margin-top: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            border-top: 5px solid var(--secondary);
         }
 
-        .btn {
-            background-color: var(--secondary);
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: var(--dark);
+            margin-bottom: 0.3rem;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1.5px solid #E0E0E0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            outline: none;
+            transition: border 0.2s;
+        }
+
+        input:focus, textarea:focus {
+            border-color: var(--secondary);
+        }
+
+        button {
+            background-color: var(--primary);
             color: white;
             border: none;
-            padding: 12px 20px;
+            padding: 14px;
             border-radius: 8px;
             font-weight: bold;
             font-size: 1rem;
             width: 100%;
             cursor: pointer;
+            box-shadow: 0 4px 10px rgba(255, 90, 95, 0.3);
+            transition: transform 0.1s;
         }
 
-        footer {
-            text-align: center;
-            padding: 2rem;
-            color: #777;
-            font-size: 0.9rem;
+        button:active {
+            transform: scale(0.98);
+        }
+
+        /* Blog Post Card */
+        .post-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.2rem;
+            margin-top: 1rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            border-left: 5px solid var(--accent);
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .badge {
+            background-color: #E8F5E9;
+            color: #2E7D32;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .post-title {
+            font-size: 1.2rem;
+            color: var(--dark);
+        }
+
+        .post-meta {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 0.8rem;
+        }
+
+        .post-body {
+            line-height: 1.5;
+            color: #444;
+            font-size: 0.95rem;
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>🌍 My Travel Journal</h1>
-        <p>Explore countries, memories, and stories across the globe</p>
+        <h1>🗺️ Wanderlust Journal</h1>
+        <p>Documenting travels, one pin at a time</p>
     </header>
 
-    <main>
+    <div class="container">
+        
+        <!-- Section 1: Interactive Map -->
+        <h2 class="section-title">📍 Interactive World Map</h2>
+        <div id="map"></div>
+
+        <!-- Section 2: Input Form -->
+        <h2 class="section-title">✍️ Add Travel Memory</h2>
         <div class="card">
-            <h2>🚀 Project Day 1 Initialized</h2>
-            <p>Welcome! This travel blog will feature interactive maps, AI-generated destination guides, interactive timelines, and tree navigation.</p>
+            <form id="travelForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Country *</label>
+                        <input type="text" id="country" placeholder="e.g., Germany" required>
+                    </div>
+                    <div class="form-group">
+                        <label>State / Region *</label>
+                        <input type="text" id="state" placeholder="e.g., Bavaria" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Place / City *</label>
+                        <input type="text" id="place" placeholder="e.g., Eichstätt" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Travel Dates</label>
+                        <input type="text" id="duration" placeholder="e.g., Sept 2026 (3 days)">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Latitude *</label>
+                        <input type="number" step="any" id="lat" placeholder="48.8912" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Longitude *</label>
+                        <input type="number" step="any" id="lng" placeholder="11.1839" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Your Travel Experience / Story *</label>
+                    <textarea id="story" rows="3" placeholder="Tell us what you did, ate, or saw here..." required></textarea>
+                </div>
+
+                <button type="submit">+ Publish to Blog & Map</button>
+            </form>
         </div>
 
-        <div class="card">
-            <h3>📍 Quick Preview Target</h3>
-            <p><strong>First Planned Entry:</strong> Eichstätt, Bavaria, Germany</p>
-        </div>
-    </main>
+        <!-- Section 3: Travel Feed -->
+        <h2 class="section-title">📖 Travel Journal</h2>
+        <div id="postsContainer"></div>
 
-    <footer>
-        <p>Built iteratively from mobile | 2026</p>
-    </footer>
+    </div>
 
+    <!-- Leaflet.js Script -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        // 1. Initialize Map centered on Europe
+        const map = L.map('map').setView([48.8912, 11.1839], 5);
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Array to store entry posts
+        const entries = [
+            {
+                country: "Germany",
+                state: "Bavaria",
+                place: "Eichstätt",
+                duration: "Current Destination",
+                lat: 48.8912,
+                lng: 11.1839,
+                story: "Exploring the historic town of Eichstätt in the heart of Altmühltal Nature Park. Known for its Baroque architecture and scenic surroundings."
+            }
+        ];
+
+        // Function to render markers and posts
+        function renderEntries() {
+            const container = document.getElementById('postsContainer');
+            container.innerHTML = '';
+
+            entries.forEach(entry => {
+                // Add Marker to Map
+                const marker = L.marker([entry.lat, entry.lng]).addTo(map);
+                marker.bindPopup(`<b>${entry.place}</b><br>${entry.state}, ${entry.country}`);
+
+                // Add Card to Feed
+                const postHtml = `
+                    <div class="post-card">
+                        <div class="post-header">
+                            <span class="post-title">📍 ${entry.place}, ${entry.state}</span>
+                            <span class="badge">${entry.country}</span>
+                        </div>
+                        <div class="post-meta">🗓️ ${entry.duration || 'Visited'}</div>
+                        <p class="post-body">${entry.story}</p>
+                    </div>
+                `;
+                container.innerHTML += postHtml;
+            });
+        }
+
+        // Render Initial Eichstätt entry
+        renderEntries();
+
+        // Handle Form Submission
+        document.getElementById('travelForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const newEntry = {
+                country: document.getElementById('country').value,
+                state: document.getElementById('state').value,
+                place: document.getElementById('place').value,
+                duration: document.getElementById('duration').value,
+                lat: parseFloat(document.getElementById('lat').value),
+                lng: parseFloat(document.getElementById('lng').value),
+                story: document.getElementById('story').value
+            };
+
+            // Add to entries list and refresh UI
+            entries.unshift(newEntry);
+            
+            // Recenter map to new marker
+            map.flyTo([newEntry.lat, newEntry.lng], 8);
+
+            renderEntries();
+
+            // Clear Form
+            document.getElementById('travelForm').reset();
+        });
+    </script>
 </body>
 </html>
