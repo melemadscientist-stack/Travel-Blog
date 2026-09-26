@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
     <style>
-        /* Windows Phone 7 (Metro) Dark Theme */
         :root {
             --bg-dark: #0A0A0A;
             --tile-bg: #161616;
@@ -36,7 +35,7 @@
             overflow-x: hidden;
         }
 
-        /* --- TOP NAVBAR --- */
+        /* --- NAVBAR --- */
         navbar {
             background-color: var(--bg-dark);
             padding: 1rem 1.2rem;
@@ -55,6 +54,7 @@
             letter-spacing: 2px;
             color: var(--accent-cyan);
             font-weight: bold;
+            cursor: pointer;
         }
 
         .pivot-container {
@@ -65,21 +65,18 @@
             scrollbar-width: none;
         }
 
-        .pivot-container::-webkit-scrollbar {
-            display: none;
-        }
+        .pivot-container::-webkit-scrollbar { display: none; }
 
         .pivot-item {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 300;
             color: var(--text-dim);
             cursor: pointer;
-            transition: color 0.2s;
+            padding-bottom: 4px;
         }
 
         .pivot-item.active, .pivot-item:hover {
             color: var(--text-light);
-            font-weight: 400;
             border-bottom: 2px solid var(--accent-cyan);
         }
 
@@ -96,23 +93,21 @@
             white-space: nowrap;
         }
 
-        /* --- MAIN 2-COLUMN LAYOUT --- */
+        /* --- LAYOUT --- */
         .app-layout {
             display: flex;
             flex-direction: column;
-            max-width: 1200px;
+            max-width: 1250px;
             margin: 0 auto;
             padding: 1rem;
             gap: 1.5rem;
         }
 
         @media (min-width: 768px) {
-            .app-layout {
-                flex-direction: row;
-            }
+            .app-layout { flex-direction: row; }
         }
 
-        /* PERMANENT LEFT BANNER (TREE + TIMELINE) */
+        /* PERMANENT LEFT BANNER */
         .left-banner {
             flex: 0 0 280px;
             background-color: var(--tile-bg);
@@ -132,11 +127,8 @@
             padding-bottom: 0.3rem;
         }
 
-        .section-label:first-child {
-            margin-top: 0;
-        }
+        .section-label:first-child { margin-top: 0; }
 
-        /* Tree View */
         .tree-list, .tree-list ul {
             list-style: none;
             padding-left: 0.8rem;
@@ -149,15 +141,9 @@
             color: var(--text-dim);
         }
 
-        .tree-node:hover {
-            color: var(--accent-cyan);
-        }
+        .tree-node:hover { color: var(--accent-cyan); }
+        .tree-node strong { color: var(--text-light); }
 
-        .tree-node strong {
-            color: var(--text-light);
-        }
-
-        /* Timeline View */
         .timeline-list {
             list-style: none;
             border-left: 2px solid var(--accent-lime);
@@ -172,17 +158,10 @@
             cursor: pointer;
         }
 
-        .timeline-item .t-place {
-            font-size: 0.85rem;
-            color: var(--text-light);
-        }
+        .timeline-item .t-place { font-size: 0.85rem; color: var(--text-light); }
+        .timeline-item .t-date { font-size: 0.75rem; color: var(--text-dim); }
 
-        .timeline-item .t-date {
-            font-size: 0.75rem;
-            color: var(--text-dim);
-        }
-
-        /* MAIN FEED CONTENT */
+        /* MAIN FEED & DETAIL AREA */
         .main-content {
             flex: 1;
             min-width: 0;
@@ -202,33 +181,38 @@
             border: 1px solid var(--border-color);
             margin-bottom: 1.5rem;
             padding: 1.2rem;
+            position: relative;
         }
 
-        .post-card.featured {
-            border-left: 5px solid var(--accent-cyan);
-        }
+        .post-card.featured { border-left: 5px solid var(--accent-cyan); }
 
         .post-badge {
-            display: inline-block;
             background-color: var(--accent-magenta);
             color: white;
             font-size: 0.7rem;
             font-weight: bold;
             padding: 2px 6px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            display: inline-block;
             margin-bottom: 0.5rem;
         }
 
-        .post-title {
+        /* Hypertext Link Title */
+        .post-title-link {
             font-size: 1.6rem;
             font-weight: 300;
-            color: var(--text-light);
+            color: var(--accent-cyan);
+            text-decoration: none;
+            cursor: pointer;
+            display: inline-block;
+            margin-bottom: 0.2rem;
         }
+
+        .post-title-link:hover { text-decoration: underline; }
 
         .post-sub {
             font-size: 0.8rem;
-            color: var(--accent-cyan);
+            color: var(--text-dim);
             text-transform: uppercase;
             margin-bottom: 0.8rem;
         }
@@ -273,13 +257,91 @@
             cursor: pointer;
         }
 
-        /* --- COLLAPSIBLE RIGHT SIDE DRAWER (ADD ITEM) --- */
+        .card-actions {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-small {
+            background: #222;
+            color: var(--text-light);
+            border: 1px solid #444;
+            padding: 5px 10px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        /* DETAIL PAGE VIEW */
+        #detailViewContainer {
+            display: none;
+            background: var(--tile-bg);
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .back-btn {
+            background: var(--accent-cyan);
+            color: black;
+            border: none;
+            padding: 6px 12px;
+            font-weight: bold;
+            font-size: 0.8rem;
+            cursor: pointer;
+            margin-bottom: 1.2rem;
+            text-transform: uppercase;
+        }
+
+        .chapter-index {
+            background: #0D0D0D;
+            border: 1px dashed var(--accent-cyan);
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .chapter-index h4 {
+            color: var(--accent-cyan);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .chapter-index ul {
+            list-style: none;
+            padding-left: 0.5rem;
+        }
+
+        .chapter-index li {
+            font-size: 0.85rem;
+            margin: 0.3rem 0;
+        }
+
+        .chapter-index a {
+            color: var(--text-light);
+            text-decoration: none;
+        }
+
+        .chapter-index a:hover { color: var(--accent-lime); }
+
+        .chapter-section {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .chapter-title {
+            font-size: 1.2rem;
+            color: var(--accent-orange);
+            margin-bottom: 0.5rem;
+        }
+
+        /* --- RIGHT DRAWER --- */
         .drawer-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             background: rgba(0,0,0,0.8);
             display: none;
             z-index: 2000;
@@ -287,10 +349,8 @@
 
         .right-drawer {
             position: fixed;
-            top: 0;
-            right: -100%;
-            width: 90%;
-            max-width: 400px;
+            top: 0; right: -100%;
+            width: 90%; max-width: 400px;
             height: 100%;
             background: #111111;
             border-left: 2px solid var(--border-color);
@@ -300,30 +360,24 @@
             padding: 1.5rem;
         }
 
-        .right-drawer.open {
-            right: 0;
-        }
+        .right-drawer.open { right: 0; }
 
         .drawer-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 1.5rem;
-            padding-bottom: 0.5rem;
             border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
         }
 
         .drawer-close {
-            background: none;
-            border: none;
+            background: none; border: none;
             color: var(--text-light);
-            font-size: 2rem;
-            cursor: pointer;
+            font-size: 2rem; cursor: pointer;
         }
 
-        .form-group {
-            margin-bottom: 1rem;
-        }
+        .form-group { margin-bottom: 1rem; }
 
         .form-group label {
             display: block;
@@ -344,82 +398,82 @@
             outline: none;
         }
 
-        .hidden-input {
-            display: none;
-            margin-top: 0.4rem;
-        }
+        .hidden-input { display: none; margin-top: 0.4rem; }
 
         .btn-metro {
             background-color: var(--accent-cyan);
-            color: black;
-            border: none;
-            padding: 12px;
-            font-weight: bold;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            width: 100%;
-            cursor: pointer;
+            color: black; border: none;
+            padding: 12px; font-weight: bold;
+            font-size: 0.85rem; text-transform: uppercase;
+            width: 100%; cursor: pointer;
             margin-top: 0.5rem;
         }
 
         .btn-ai {
             background-color: var(--accent-magenta);
-            color: white;
-            border: none;
-            padding: 10px;
-            font-weight: bold;
-            font-size: 0.8rem;
-            width: 100%;
-            cursor: pointer;
-            margin-bottom: 1rem;
+            color: white; border: none;
+            padding: 10px; font-weight: bold;
+            font-size: 0.8rem; width: 100%;
+            cursor: pointer; margin-bottom: 1rem;
             text-transform: uppercase;
         }
 
-        /* --- PHOTO LIGHTBOX POPUP --- */
+        /* --- LIGHTBOX MODAL WITH ARROWS --- */
         .lightbox-modal {
             display: none;
             position: fixed;
             z-index: 3000;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.92);
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
             justify-content: center;
             align-items: center;
             padding: 1rem;
         }
 
-        .lightbox-modal.open {
-            display: flex;
-        }
+        .lightbox-modal.open { display: flex; }
 
         .lightbox-img {
-            max-width: 95%;
-            max-height: 90vh;
+            max-width: 88%;
+            max-height: 85vh;
             object-fit: contain;
             border: 2px solid var(--accent-cyan);
-            box-shadow: 0 0 25px rgba(0,0,0,0.8);
         }
 
         .lightbox-close {
             position: absolute;
-            top: 15px;
-            right: 25px;
+            top: 15px; right: 25px;
             color: var(--text-light);
             font-size: 2.5rem;
             font-weight: bold;
             cursor: pointer;
             z-index: 3001;
-            line-height: 1;
         }
+
+        .lightbox-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.15);
+            color: white;
+            border: 1px solid var(--border-color);
+            padding: 12px 18px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            user-select: none;
+            z-index: 3001;
+        }
+
+        .lightbox-arrow.left { left: 15px; }
+        .lightbox-arrow.right { right: 15px; }
+        .lightbox-arrow:hover { background: var(--accent-cyan); color: black; }
     </style>
 </head>
 <body>
 
     <!-- TOP NAVBAR -->
     <navbar>
-        <div class="brand-title">🌍 Wanderlust</div>
+        <div class="brand-title" onclick="showFeedView()">🌍 Wanderlust</div>
         <div class="pivot-container" id="pivotBar">
             <span class="pivot-item active" onclick="filterByCountry('ALL')">ALL</span>
         </div>
@@ -438,19 +492,27 @@
             <ul class="timeline-list" id="timelineList"></ul>
         </div>
 
-        <!-- CENTER MAIN FEED -->
+        <!-- CENTER MAIN CONTENT -->
         <div class="main-content">
             <div id="map"></div>
+            
+            <!-- Feed View -->
             <div id="postsContainer"></div>
+
+            <!-- Detail Page View -->
+            <div id="detailViewContainer">
+                <button class="back-btn" onclick="showFeedView()">← Back to Journal Feed</button>
+                <div id="detailContent"></div>
+            </div>
         </div>
 
     </div>
 
-    <!-- COLLAPSIBLE RIGHT DRAWER (ADD MEMORY FORM) -->
+    <!-- RIGHT DRAWER (ADD/EDIT FORM) -->
     <div class="drawer-overlay" id="drawerOverlay"></div>
     <div class="right-drawer" id="rightDrawer">
         <div class="drawer-header">
-            <h3>✍️ Add New Entry</h3>
+            <h3 id="formTitle">✍️ Add New Entry</h3>
             <button class="drawer-close" id="closeDrawerBtn">&times;</button>
         </div>
 
@@ -460,32 +522,30 @@
         </div>
 
         <form id="travelForm">
+            <input type="hidden" id="editingEntryId" value="">
+
             <div class="form-group">
                 <label>Country *</label>
                 <select id="countrySelect" required>
-                    <option value="">-- Select Country --</option>
-                    <option value="Germany">Germany</option>
-                    <option value="France">France</option>
-                    <option value="Italy">Italy</option>
-                    <option value="Other">Other...</option>
+                    <!-- Populated dynamically -->
                 </select>
-                <input type="text" id="customCountry" class="hidden-input" placeholder="Type country">
+                <input type="text" id="customCountry" class="hidden-input" placeholder="Type custom country">
             </div>
 
             <div class="form-group">
                 <label>State / Region *</label>
-                <select id="stateSelect" required disabled>
-                    <option value="">-- Select Country First --</option>
+                <select id="stateSelect" required>
+                    <!-- Populated dynamically -->
                 </select>
-                <input type="text" id="customState" class="hidden-input" placeholder="Type state">
+                <input type="text" id="customState" class="hidden-input" placeholder="Type custom state">
             </div>
 
             <div class="form-group">
                 <label>Place / City *</label>
-                <select id="placeSelect" required disabled>
-                    <option value="">-- Select State First --</option>
+                <select id="placeSelect" required>
+                    <!-- Populated dynamically -->
                 </select>
-                <input type="text" id="customPlace" class="hidden-input" placeholder="Type place">
+                <input type="text" id="customPlace" class="hidden-input" placeholder="Type place/city">
             </div>
 
             <div class="form-group">
@@ -500,7 +560,7 @@
 
             <div class="form-group">
                 <label>Raw Notes / Story *</label>
-                <textarea id="story" rows="3" placeholder="Write your experience..." required></textarea>
+                <textarea id="story" rows="4" placeholder="Write your travel story or chapter..." required></textarea>
             </div>
 
             <button type="button" class="btn-ai" id="aiBtn">✨ Polish & Generate with AI</button>
@@ -508,27 +568,33 @@
         </form>
     </div>
 
-    <!-- PHOTO LIGHTBOX POPUP -->
+    <!-- LIGHTBOX MODAL WITH NAVIGATION -->
     <div class="lightbox-modal" id="lightboxModal">
         <span class="lightbox-close" id="lightboxClose">&times;</span>
+        <button class="lightbox-arrow left" id="lightboxPrev">&#10094;</button>
         <img class="lightbox-img" id="lightboxImg" alt="Full view">
+        <button class="lightbox-arrow right" id="lightboxNext">&#10095;</button>
     </div>
 
     <!-- Leaflet.js Script -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
+        // EXPANDED LOCATION DATABASE (13 Countries + States)
         const locationDB = {
-            "Germany": {
-                "Bavaria": ["Eichstätt", "Munich", "Nuremberg"],
-                "Berlin": ["Berlin City Center"]
-            },
-            "France": {
-                "Île-de-France": ["Paris"]
-            },
-            "Italy": {
-                "Lazio": ["Rome"]
-            }
+            "Germany": ["Bavaria", "Berlin", "Baden-Württemberg", "Saxony", "Hesse", "North Rhine-Westphalia"],
+            "France": ["Île-de-France", "Provence-Alpes-Côte d'Azur", "Auvergne-Rhône-Alpes", "Nouvelle-Aquitaine"],
+            "Italy": ["Lazio", "Tuscany", "Lombardy", "Veneto", "Sicily", "Piedmont"],
+            "Austria": ["Vienna", "Tyrol", "Salzburg", "Styria", "Upper Austria"],
+            "Greece": ["Attica", "Central Macedonia", "Crete", "South Aegean", "Ionian Islands"],
+            "Bulgaria": ["Sofia City", "Plovdiv", "Varna", "Burgas"],
+            "Switzerland": ["Zurich", "Geneva", "Bern", "Vaud", "Lucerne"],
+            "Netherlands": ["North Holland", "South Holland", "Utrecht", "Gelderland"],
+            "Finland": ["Uusimaa", "Pirkanmaa", "Southwest Finland", "Lapland"],
+            "Belgium": ["Brussels", "Flanders", "Wallonia"],
+            "Mauritius": ["Port Louis", "Pamplemousses", "Black River", "Flacq"],
+            "Malta": ["Northern Region", "Southern Region", "Central Region", "Gozo"],
+            "India": ["Maharashtra", "Delhi", "Karnataka", "Tamil Nadu", "Kerala", "Rajasthan", "Goa"]
         };
 
         let entries = [
@@ -540,11 +606,12 @@
                 date: "2026-09-20",
                 lat: 48.8912,
                 lng: 11.1839,
-                countryFacts: "Germany • Lang: German • Currency: Euro (€) • Located in Central Europe.",
+                countryFacts: "Germany • Lang: German • Currency: Euro (€) • Central Europe.",
                 placeFacts: "Eichstätt is famous for Baroque architecture, Willibaldsburg Castle, and Altmühltal Valley.",
                 story: "Exploring the historic town of Eichstätt in the heart of Altmühltal Nature Park. Known for Baroque architecture and peaceful river valley views.",
                 photos: [
-                    "https://images.unsplash.com/photo-1599946347371-68eb71b16afc?auto=format&fit=crop&w=800&q=80"
+                    "https://images.unsplash.com/photo-1599946347371-68eb71b16afc?auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=800&q=80"
                 ]
             }
         ];
@@ -557,11 +624,12 @@
 
         let mapMarkers = [];
 
-        // Collapsible Drawer Controls
+        // Drawer Controls
         const rightDrawer = document.getElementById('rightDrawer');
         const drawerOverlay = document.getElementById('drawerOverlay');
 
         document.getElementById('openDrawerBtn').onclick = () => {
+            resetForm();
             rightDrawer.classList.add('open');
             drawerOverlay.style.display = 'block';
         };
@@ -574,66 +642,80 @@
         document.getElementById('closeDrawerBtn').onclick = closeDrawer;
         drawerOverlay.onclick = closeDrawer;
 
-        // Lightbox Popup Controls
+        // Lightbox Popup Controls with Navigation
+        let currentLightboxPhotos = [];
+        let currentLightboxIdx = 0;
+
         const lightboxModal = document.getElementById('lightboxModal');
         const lightboxImg = document.getElementById('lightboxImg');
 
-        function openLightbox(src) {
-            lightboxImg.src = src;
+        function openLightbox(photosArray, startIndex = 0) {
+            if (!photosArray || photosArray.length === 0) return;
+            currentLightboxPhotos = photosArray;
+            currentLightboxIdx = startIndex;
+            updateLightboxView();
             lightboxModal.classList.add('open');
         }
 
-        document.getElementById('lightboxClose').onclick = () => {
-            lightboxModal.classList.remove('open');
+        function updateLightboxView() {
+            lightboxImg.src = currentLightboxPhotos[currentLightboxIdx];
+            document.getElementById('lightboxPrev').style.display = currentLightboxPhotos.length > 1 ? 'block' : 'none';
+            document.getElementById('lightboxNext').style.display = currentLightboxPhotos.length > 1 ? 'block' : 'none';
+        }
+
+        document.getElementById('lightboxPrev').onclick = () => {
+            currentLightboxIdx = (currentLightboxIdx - 1 + currentLightboxPhotos.length) % currentLightboxPhotos.length;
+            updateLightboxView();
         };
 
+        document.getElementById('lightboxNext').onclick = () => {
+            currentLightboxIdx = (currentLightboxIdx + 1) % currentLightboxPhotos.length;
+            updateLightboxView();
+        };
+
+        document.getElementById('lightboxClose').onclick = () => lightboxModal.classList.remove('open');
         lightboxModal.onclick = (e) => {
             if (e.target === lightboxModal) lightboxModal.classList.remove('open');
         };
 
-        // Cascading Dropdowns
+        // Populate Form Country Dropdown
+        function initFormDropdowns() {
+            const countrySel = document.getElementById('countrySelect');
+            countrySel.innerHTML = '<option value="">-- Select Country --</option>';
+            Object.keys(locationDB).forEach(c => {
+                countrySel.innerHTML += `<option value="${c}">${c}</option>`;
+            });
+            countrySel.innerHTML += `<option value="Other">Other...</option>`;
+            
+            populateStateDropdown();
+        }
+
         const countrySel = document.getElementById('countrySelect');
         const stateSel = document.getElementById('stateSelect');
         const placeSel = document.getElementById('placeSelect');
 
         countrySel.addEventListener('change', () => {
-            const country = countrySel.value;
-            stateSel.innerHTML = '<option value="">-- Select State --</option>';
-            placeSel.innerHTML = '<option value="">-- Select Place --</option>';
-            placeSel.disabled = true;
-
-            if (country === 'Other') {
+            const c = countrySel.value;
+            if (c === 'Other') {
                 toggleCustom('customCountry', true);
                 toggleCustom('customState', true);
                 toggleCustom('customPlace', true);
-                stateSel.disabled = false;
-                placeSel.disabled = false;
-            } else if (locationDB[country]) {
+                stateSel.value = "Other";
+                placeSel.value = "Other";
+            } else {
                 toggleCustom('customCountry', false);
-                stateSel.disabled = false;
-                Object.keys(locationDB[country]).forEach(st => {
-                    stateSel.innerHTML += `<option value="${st}">${st}</option>`;
-                });
-                stateSel.innerHTML += `<option value="Other">Other...</option>`;
+                populateStateDropdown();
             }
         });
 
         stateSel.addEventListener('change', () => {
-            const country = countrySel.value;
-            const state = stateSel.value;
-            placeSel.innerHTML = '<option value="">-- Select Place --</option>';
-
-            if (state === 'Other') {
+            if (stateSel.value === 'Other') {
                 toggleCustom('customState', true);
                 toggleCustom('customPlace', true);
-                placeSel.disabled = false;
-            } else if (locationDB[country] && locationDB[country][state]) {
+                placeSel.value = "Other";
+            } else {
                 toggleCustom('customState', false);
-                placeSel.disabled = false;
-                locationDB[country][state].forEach(pl => {
-                    placeSel.innerHTML += `<option value="${pl}">${pl}</option>`;
-                });
-                placeSel.innerHTML += `<option value="Other">Other...</option>`;
+                populatePlaceDropdown();
             }
         });
 
@@ -641,24 +723,42 @@
             toggleCustom('customPlace', placeSel.value === 'Other');
         });
 
+        function populateStateDropdown() {
+            const c = countrySel.value;
+            stateSel.innerHTML = '<option value="">-- Select State --</option>';
+            if (locationDB[c]) {
+                locationDB[c].forEach(s => {
+                    stateSel.innerHTML += `<option value="${s}">${s}</option>`;
+                });
+            }
+            stateSel.innerHTML += `<option value="Other">Other...</option>`;
+            populatePlaceDropdown();
+        }
+
+        function populatePlaceDropdown() {
+            placeSel.innerHTML = `
+                <option value="">-- Select or Type Place --</option>
+                <option value="Other">Other (Type manually)...</option>
+            `;
+        }
+
         function toggleCustom(id, show) {
             const el = document.getElementById(id);
             el.style.display = show ? 'block' : 'none';
             el.required = show;
         }
 
-        // Render UI
+        // Render Main UI
         function renderUI(filterCountry = "ALL") {
-            map.closePopup(); // Clear any open popups
-
+            map.closePopup();
             entries.sort((a, b) => new Date(b.date) - new Date(a.date));
 
             mapMarkers.forEach(m => map.removeLayer(m));
             mapMarkers = [];
 
-            // 1. Pivot Bar
+            // 1. Pivot Navigation Bar
             const pivotBar = document.getElementById('pivotBar');
-            const uniqueCountries = [...new Set(entries.map(e => e.country))];
+            const uniqueCountries = [...new Set(entries.map(e => e.country || 'Other'))];
             
             let pivotHtml = `<span class="pivot-item ${filterCountry === 'ALL' ? 'active' : ''}" onclick="filterByCountry('ALL')">ALL</span>`;
             uniqueCountries.forEach(c => {
@@ -667,12 +767,11 @@
             });
             pivotBar.innerHTML = pivotHtml;
 
-            // Filter entries
             const filtered = filterCountry === "ALL" 
                 ? entries 
-                : entries.filter(e => e.country === filterCountry);
+                : entries.filter(e => (e.country || 'Other') === filterCountry);
 
-            // 2. Feed Posts
+            // 2. Feed Cards
             const container = document.getElementById('postsContainer');
             container.innerHTML = '';
 
@@ -685,20 +784,22 @@
 
                 let photosHtml = '';
                 if (entry.photos && entry.photos.length > 0) {
-                    photosHtml = `<img src="${entry.photos[0]}" class="hero-photo" onclick="openLightbox(this.src)" alt="${entry.place}">`;
+                    photosHtml = `<img src="${entry.photos[0]}" class="hero-photo" onclick="openLightbox(entries.find(e => e.id === ${entry.id}).photos, 0)" alt="${entry.place}">`;
                     if (entry.photos.length > 1) {
                         photosHtml += '<div class="thumbnail-grid">';
-                        entry.photos.forEach(p => {
-                            photosHtml += `<img src="${p}" onclick="openLightbox(this.src)" alt="Thumbnail">`;
+                        entry.photos.forEach((p, pIdx) => {
+                            photosHtml += `<img src="${p}" onclick="openLightbox(entries.find(e => e.id === ${entry.id}).photos, ${pIdx})" alt="Thumb">`;
                         });
                         photosHtml += '</div>';
                     }
                 }
 
-                const postCard = `
+                const cardHtml = `
                     <div class="post-card ${isFeatured ? 'featured' : ''}" id="post-${entry.id}">
                         ${isFeatured ? '<span class="post-badge">✨ Most Recent</span>' : ''}
-                        <div class="post-title">${entry.place}</div>
+                        <div>
+                            <a class="post-title-link" onclick="openDetailPage(${entry.id})">${entry.place}</a>
+                        </div>
                         <div class="post-sub">${entry.state}, ${entry.country} • ${entry.date}</div>
                         
                         ${entry.countryFacts ? `<div class="ai-facts-box"><strong>🌍 Country Info:</strong> ${entry.countryFacts}</div>` : ''}
@@ -706,9 +807,14 @@
 
                         ${photosHtml}
                         <p class="post-story">${entry.story}</p>
+
+                        <div class="card-actions">
+                            <button class="btn-small" onclick="openDetailPage(${entry.id})">📖 Full Article</button>
+                            <button class="btn-small" onclick="editEntry(${entry.id})">✏️ Edit</button>
+                        </div>
                     </div>
                 `;
-                container.innerHTML += postCard;
+                container.innerHTML += cardHtml;
             });
 
             if (filtered.length > 0) {
@@ -720,6 +826,7 @@
         }
 
         function filterByCountry(c) {
+            showFeedView();
             renderUI(c);
         }
 
@@ -729,9 +836,11 @@
 
             const countryMap = {};
             entries.forEach(e => {
-                if (!countryMap[e.country]) countryMap[e.country] = {};
-                if (!countryMap[e.country][e.state]) countryMap[e.country][e.state] = [];
-                countryMap[e.country][e.state].push(e);
+                const c = e.country || 'Other';
+                const s = e.state || 'Other';
+                if (!countryMap[c]) countryMap[c] = {};
+                if (!countryMap[c][s]) countryMap[c][s] = [];
+                countryMap[c][s].push(e);
             });
 
             for (let c in countryMap) {
@@ -739,7 +848,7 @@
                 for (let s in countryMap[c]) {
                     treeHtml += `<li class="tree-node">▸ ${s}<ul>`;
                     countryMap[c][s].forEach(p => {
-                        treeHtml += `<li class="tree-node" onclick="scrollToPost('post-${p.id}')">• ${p.place}</li>`;
+                        treeHtml += `<li class="tree-node" onclick="openDetailPage(${p.id})">• ${p.place}</li>`;
                     });
                     treeHtml += '</ul></li>';
                 }
@@ -754,7 +863,7 @@
             timelineList.innerHTML = '';
             filtered.forEach(entry => {
                 timelineList.innerHTML += `
-                    <li class="timeline-item" onclick="scrollToPost('post-${entry.id}')">
+                    <li class="timeline-item" onclick="openDetailPage(${entry.id})">
                         <div class="t-place"><b>${entry.place}</b>, ${entry.country}</div>
                         <div class="t-date">${entry.date}</div>
                     </li>
@@ -762,12 +871,112 @@
             });
         }
 
-        function scrollToPost(id) {
-            const el = document.getElementById(id);
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
+        // DETAIL VIEW PAGE (Hypertext click handler)
+        function openDetailPage(id) {
+            const entry = entries.find(e => e.id === id);
+            if (!entry) return;
+
+            document.getElementById('postsContainer').style.display = 'none';
+            const detailContainer = document.getElementById('detailViewContainer');
+            detailContainer.style.display = 'block';
+
+            let photosGalleryHtml = '';
+            if (entry.photos && entry.photos.length > 0) {
+                photosGalleryHtml = '<div class="thumbnail-grid" style="margin-top:1rem;">';
+                entry.photos.forEach((p, idx) => {
+                    photosGalleryHtml += `<img src="${p}" style="width:120px; height:120px;" onclick="openLightbox(entries.find(e => e.id === ${entry.id}).photos, ${idx})">`;
+                });
+                photosGalleryHtml += '</div>';
+            }
+
+            const detailHtml = `
+                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div>
+                        <h1 style="font-size:2.2rem; font-weight:300; color:var(--text-light);">${entry.place}</h1>
+                        <div class="post-sub">${entry.state}, ${entry.country} • Visited: ${entry.date}</div>
+                    </div>
+                    <button class="btn-small" onclick="editEntry(${entry.id})">✏️ Edit Page</button>
+                </div>
+
+                <!-- Chapter Table of Contents Index -->
+                <div class="chapter-index">
+                    <h4>📑 Article Chapter Index</h4>
+                    <ul>
+                        <li><a href="#ch-facts">1. Location Overview & Facts</a></li>
+                        <li><a href="#ch-story">2. Personal Travel Experience</a></li>
+                        <li><a href="#ch-gallery">3. Photo Gallery & Memories</a></li>
+                    </ul>
+                </div>
+
+                <div class="chapter-section" id="ch-facts">
+                    <div class="chapter-title">1. Location Overview & Facts</div>
+                    ${entry.countryFacts ? `<div class="ai-facts-box"><strong>🌍 Country Details:</strong> ${entry.countryFacts}</div>` : ''}
+                    ${entry.placeFacts ? `<div class="ai-facts-box"><strong>📍 Must-Sees & Specialities:</strong> ${entry.placeFacts}</div>` : ''}
+                </div>
+
+                <div class="chapter-section" id="ch-story">
+                    <div class="chapter-title">2. Personal Travel Experience</div>
+                    <p class="post-story" style="font-size:1rem;">${entry.story}</p>
+                </div>
+
+                <div class="chapter-section" id="ch-gallery">
+                    <div class="chapter-title">3. Photo Gallery</div>
+                    ${photosGalleryHtml || '<p style="color:#777;">No photos uploaded yet.</p>'}
+                </div>
+            `;
+
+            document.getElementById('detailContent').innerHTML = detailHtml;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Gemini AI Handler
+        function showFeedView() {
+            document.getElementById('detailViewContainer').style.display = 'none';
+            document.getElementById('postsContainer').style.display = 'block';
+        }
+
+        // EDIT ENTRY FUNCTION
+        function editEntry(id) {
+            const entry = entries.find(e => e.id === id);
+            if (!entry) return;
+
+            document.getElementById('formTitle').innerText = "✏️ Edit Travel Entry";
+            document.getElementById('editingEntryId').value = entry.id;
+
+            countrySel.value = locationDB[entry.country] ? entry.country : 'Other';
+            if (countrySel.value === 'Other') {
+                toggleCustom('customCountry', true);
+                document.getElementById('customCountry').value = entry.country;
+            }
+            populateStateDropdown();
+
+            stateSel.value = entry.state;
+            if (stateSel.value === 'Other' || !stateSel.value) {
+                toggleCustom('customState', true);
+                document.getElementById('customState').value = entry.state;
+            }
+
+            placeSel.value = 'Other';
+            toggleCustom('customPlace', true);
+            document.getElementById('customPlace').value = entry.place;
+
+            document.getElementById('visitDate').value = entry.date;
+            document.getElementById('story').value = entry.story;
+
+            rightDrawer.classList.add('open');
+            drawerOverlay.style.display = 'block';
+        }
+
+        function resetForm() {
+            document.getElementById('formTitle').innerText = "✍️ Add New Entry";
+            document.getElementById('editingEntryId').value = "";
+            document.getElementById('travelForm').reset();
+            toggleCustom('customCountry', false);
+            toggleCustom('customState', false);
+            toggleCustom('customPlace', false);
+            populateStateDropdown();
+        }
+
+        // Gemini AI Integration
         document.getElementById('aiBtn').addEventListener('click', async () => {
             const apiKey = document.getElementById('geminiApiKey').value.trim();
             const country = countrySel.value === 'Other' ? document.getElementById('customCountry').value : countrySel.value;
@@ -775,26 +984,19 @@
             const place = placeSel.value === 'Other' ? document.getElementById('customPlace').value : placeSel.value;
             const rawStory = document.getElementById('story').value;
 
-            if (!apiKey) {
-                alert("Please paste your Gemini API Key first!");
-                return;
-            }
-            if (!place || !country) {
-                alert("Please select Country and Place first!");
-                return;
-            }
+            if (!apiKey) { alert("Please paste your Gemini API Key first!"); return; }
 
             const aiBtn = document.getElementById('aiBtn');
-            aiBtn.innerText = "⏳ Generating...";
+            aiBtn.innerText = "⏳ AI Composing...";
             aiBtn.disabled = true;
 
-            const prompt = `You are a travel assistant. Output JSON ONLY for: Place: ${place}, State: ${state}, Country: ${country}.
-            User Notes: "${rawStory}".
-            JSON Schema:
+            const prompt = `You are a travel writer. Generate JSON for: Place: ${place || 'Travel spot'}, State: ${state || ''}, Country: ${country || ''}.
+            Notes: "${rawStory}".
+            Output valid JSON matching this schema:
             {
                 "countryFacts": "1-2 lines on currency, language, location.",
                 "placeFacts": "4-5 lines on speciality and must-sees.",
-                "polishedStory": "Rephrase notes into a enjoyable travel narrative."
+                "polishedStory": "Rephrase notes into a captivating travel narrative."
             }`;
 
             try {
@@ -810,7 +1012,7 @@
 
                 document.getElementById('story').value = jsonResult.polishedStory;
                 window.lastAiResult = jsonResult;
-                alert("✨ AI polished story & facts ready!");
+                alert("✨ Story & facts generated by Gemini AI!");
 
             } catch (err) {
                 alert("Error connecting to Gemini API.");
@@ -840,16 +1042,16 @@
             return { lat: 48.8912, lng: 11.1839 };
         }
 
-        // Form Submit
+        // Form Submit Handler
         document.getElementById('travelForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
             btn.innerText = "Publishing...";
             btn.disabled = true;
 
-            const finalCountry = countrySel.value === 'Other' ? document.getElementById('customCountry').value : countrySel.value;
-            const finalState = stateSel.value === 'Other' ? document.getElementById('customState').value : stateSel.value;
-            const finalPlace = placeSel.value === 'Other' ? document.getElementById('customPlace').value : placeSel.value;
+            const finalCountry = countrySel.value === 'Other' ? (document.getElementById('customCountry').value || 'Other') : (countrySel.value || 'Other');
+            const finalState = stateSel.value === 'Other' ? (document.getElementById('customState').value || 'Other') : (stateSel.value || 'Other');
+            const finalPlace = placeSel.value === 'Other' ? (document.getElementById('customPlace').value || 'Unmapped Location') : (placeSel.value || 'Unmapped Location');
 
             const photoFiles = document.getElementById('photoInput').files;
             let photoUrls = [];
@@ -857,32 +1059,55 @@
 
             const coords = await fetchCoordinates(finalPlace, finalState, finalCountry);
 
-            const newEntry = {
-                id: Date.now(),
-                country: finalCountry,
-                state: finalState,
-                place: finalPlace,
-                date: document.getElementById('visitDate').value,
-                lat: coords.lat,
-                lng: coords.lng,
-                story: document.getElementById('story').value,
-                countryFacts: window.lastAiResult ? window.lastAiResult.countryFacts : '',
-                placeFacts: window.lastAiResult ? window.lastAiResult.placeFacts : '',
-                photos: photoUrls
-            };
+            const editId = document.getElementById('editingEntryId').value;
 
-            entries.unshift(newEntry);
+            if (editId) {
+                // Update Existing Entry
+                const existing = entries.find(item => item.id == editId);
+                if (existing) {
+                    existing.country = finalCountry;
+                    existing.state = finalState;
+                    existing.place = finalPlace;
+                    existing.date = document.getElementById('visitDate').value;
+                    existing.lat = coords.lat;
+                    existing.lng = coords.lng;
+                    existing.story = document.getElementById('story').value;
+                    if (photoUrls.length > 0) existing.photos = photoUrls;
+                    if (window.lastAiResult) {
+                        existing.countryFacts = window.lastAiResult.countryFacts;
+                        existing.placeFacts = window.lastAiResult.placeFacts;
+                    }
+                }
+            } else {
+                // Add New Entry
+                const newEntry = {
+                    id: Date.now(),
+                    country: finalCountry,
+                    state: finalState,
+                    place: finalPlace,
+                    date: document.getElementById('visitDate').value,
+                    lat: coords.lat,
+                    lng: coords.lng,
+                    story: document.getElementById('story').value,
+                    countryFacts: window.lastAiResult ? window.lastAiResult.countryFacts : '',
+                    placeFacts: window.lastAiResult ? window.lastAiResult.placeFacts : '',
+                    photos: photoUrls
+                };
+                entries.unshift(newEntry);
+            }
+
             window.lastAiResult = null;
-
+            showFeedView();
             renderUI();
-            document.getElementById('travelForm').reset();
+            resetForm();
             closeDrawer();
 
             btn.innerText = "Publish Memory";
             btn.disabled = false;
         });
 
-        // Initial Render
+        // App Initialization
+        initFormDropdowns();
         renderUI();
     </script>
 </body>
