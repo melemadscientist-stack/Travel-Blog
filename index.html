@@ -5,17 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wanderlust Journal</title>
     
-    <!-- Leaflet.js CSS (Interactive Maps) -->
+    <!-- Leaflet.js CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
     <style>
+        /* Windows Phone 7 (Metro) Palette */
         :root {
-            --primary: #FF5A5F;   /* Energetic Coral */
-            --secondary: #00A699; /* Deep Teal */
-            --accent: #FFB400;    /* Sunshine Yellow */
-            --dark: #2C3E50;      /* Dark Slate */
-            --bg: #F8F9FA;        /* Clean Light Background */
-            --card-bg: #FFFFFF;
+            --bg-dark: #0A0A0A;
+            --tile-bg: #161616;
+            --text-light: #F2F2F2;
+            --text-dim: #A0A0A0;
+            --accent-cyan: #00A4EF;
+            --accent-magenta: #E3008C;
+            --accent-orange: #FF8C00;
+            --accent-lime: #7FBA00;
+            --border-color: #262626;
         }
 
         * {
@@ -25,306 +29,349 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: var(--bg);
-            color: var(--dark);
-            padding-bottom: 4rem;
+            font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            padding-bottom: 5rem;
+            overflow-x: hidden;
         }
 
-        /* --- TOP NAVBAR --- */
-        navbar {
-            background: linear-gradient(135deg, var(--primary), #e0484d);
-            color: white;
-            padding: 0.8rem 1.2rem;
+        /* --- METRO TOP PIVOT BANNER --- */
+        header {
+            background-color: var(--bg-dark);
+            padding: 1.2rem 1.5rem;
+            border-bottom: 2px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 900;
+        }
+
+        .header-top {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            margin-bottom: 1rem;
         }
 
-        .nav-brand {
-            font-weight: bold;
-            font-size: 1.2rem;
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-        }
-
-        .nav-actions {
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-        }
-
-        .country-dropdown {
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.4);
-            padding: 6px 10px;
-            border-radius: 20px;
+        .brand-title {
             font-size: 0.85rem;
-            outline: none;
-        }
-
-        .country-dropdown option {
-            color: var(--dark);
-            background: white;
-        }
-
-        .btn-add {
-            background-color: var(--accent);
-            color: var(--dark);
-            border: none;
-            padding: 7px 14px;
-            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent-cyan);
             font-weight: bold;
+        }
+
+        .btn-menu-toggle {
+            background: transparent;
+            color: var(--text-light);
+            border: 1px solid var(--border-color);
+            padding: 6px 14px;
             font-size: 0.85rem;
             cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Metro Pivot Links */
+        .pivot-container {
+            display: flex;
+            gap: 1.8rem;
+            overflow-x: auto;
+            white-space: nowrap;
+            scrollbar-width: none;
+            padding-bottom: 0.3rem;
+        }
+
+        .pivot-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .pivot-item {
+            font-size: 1.8rem;
+            font-weight: 300;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: color 0.2s;
+            position: relative;
+        }
+
+        .pivot-item.active, .pivot-item:hover {
+            color: var(--text-light);
+            font-weight: 400;
+        }
+
+        .pivot-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: #1F1F1F;
+            border: 1px solid #333;
+            padding: 0.8rem;
+            min-width: 180px;
+            z-index: 1000;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.8);
+        }
+
+        .pivot-item:hover .pivot-dropdown {
+            display: block;
+        }
+
+        .pivot-dropdown div {
+            font-size: 0.9rem;
+            padding: 5px 0;
+            color: var(--text-dim);
+        }
+
+        .pivot-dropdown div:hover {
+            color: var(--accent-cyan);
         }
 
         /* --- MAIN LAYOUT --- */
-        .container {
+        .main-container {
             max-width: 900px;
             margin: 0 auto;
-            padding: 1rem;
-        }
-
-        /* Map & Top Widget Layout */
-        .top-section {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        @media (min-width: 768px) {
-            .top-section {
-                grid-template-columns: 2fr 1fr;
-            }
+            padding: 1.5rem 1rem;
         }
 
         #map {
-            height: 300px;
-            border-radius: 16px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            height: 280px;
+            width: 100%;
+            background: var(--tile-bg);
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
             z-index: 1;
         }
 
-        /* --- TIMELINE VIEW --- */
-        .timeline-card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 1rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .timeline-title {
-            font-size: 1rem;
-            font-weight: bold;
-            margin-bottom: 0.8rem;
-            color: var(--secondary);
-        }
-
-        .timeline-list {
-            list-style: none;
-            border-left: 2px solid #E0E0E0;
-            padding-left: 1rem;
-            margin-left: 0.5rem;
-        }
-
-        .timeline-item {
-            position: relative;
-            margin-bottom: 0.8rem;
-            font-size: 0.85rem;
-            cursor: pointer;
-        }
-
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: -1.35rem;
-            top: 4px;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: var(--primary);
-        }
-
-        .timeline-date {
-            font-size: 0.75rem;
-            color: #888;
-        }
-
-        /* --- POST CARDS & GALLERY --- */
-        .section-header {
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin: 1.5rem 0 1rem 0;
-            color: var(--dark);
-        }
-
-        .latest-badge {
-            background: var(--primary);
-            color: white;
-            font-size: 0.7rem;
-            padding: 3px 8px;
-            border-radius: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            display: inline-block;
-            margin-bottom: 0.5rem;
+        /* --- METRO TILES & CARDS --- */
+        .page-heading {
+            font-size: 2.2rem;
+            font-weight: 300;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.5px;
         }
 
         .post-card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
-            margin-bottom: 1.5rem;
-            border: 1px solid #EFEFEF;
+            background-color: var(--tile-bg);
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            position: relative;
         }
 
         .post-card.featured {
-            border: 2px solid var(--secondary);
+            border-left: 5px solid var(--accent-cyan);
+        }
+
+        .post-badge {
+            display: inline-block;
+            background-color: var(--accent-magenta);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 3px 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.8rem;
+        }
+
+        .post-title {
+            font-size: 1.8rem;
+            font-weight: 300;
+            color: var(--text-light);
+            margin-bottom: 0.3rem;
+        }
+
+        .post-sub {
+            font-size: 0.85rem;
+            color: var(--accent-cyan);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+        }
+
+        /* Metro AI Fact Box */
+        .ai-facts-box {
+            background-color: #0F1923;
+            border-left: 3px solid var(--accent-cyan);
+            padding: 0.8rem 1rem;
+            margin: 1rem 0;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: #C0E0F0;
+        }
+
+        .ai-facts-box strong {
+            color: var(--text-light);
+            display: block;
+            margin-bottom: 0.2rem;
         }
 
         .hero-photo {
             width: 100%;
-            height: 250px;
+            max-height: 350px;
             object-fit: cover;
-            display: block;
-            background-color: #eee;
-        }
-
-        .post-content {
-            padding: 1.2rem;
-        }
-
-        .post-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 0.4rem;
-        }
-
-        .post-title {
-            font-size: 1.3rem;
-            color: var(--dark);
-            font-weight: bold;
-        }
-
-        .post-meta {
-            font-size: 0.85rem;
-            color: #777;
-            margin-bottom: 0.8rem;
+            margin: 1rem 0;
+            border: 1px solid var(--border-color);
         }
 
         .post-story {
-            line-height: 1.6;
-            color: #444;
             font-size: 0.95rem;
+            line-height: 1.7;
+            color: #D0D0D0;
             margin-bottom: 1rem;
         }
 
-        /* Photo Thumbnails Grid */
         .thumbnail-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+            display: flex;
             gap: 0.5rem;
-            margin-top: 0.8rem;
+            overflow-x: auto;
+            margin-top: 1rem;
         }
 
         .thumbnail-grid img {
-            width: 100%;
-            height: 60px;
+            width: 80px;
+            height: 80px;
             object-fit: cover;
-            border-radius: 8px;
+            border: 1px solid var(--border-color);
             cursor: pointer;
-            border: 1px solid #ddd;
         }
 
-        /* --- COLLAPSIBLE SIDE DRAWER --- */
-        .drawer-overlay {
+        /* --- FULL SCREEN LEFT SIDEBAR --- */
+        .sidebar-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.85);
             display: none;
             z-index: 2000;
         }
 
-        .drawer {
+        .sidebar {
             position: fixed;
             top: 0;
-            right: -100%;
+            left: -100%;
             width: 85%;
-            max-width: 400px;
+            max-width: 420px;
             height: 100%;
-            background: white;
+            background: #111111;
+            border-right: 2px solid var(--border-color);
             z-index: 2001;
-            box-shadow: -4px 0 20px rgba(0,0,0,0.2);
-            transition: right 0.3s ease;
+            transition: left 0.3s ease;
             overflow-y: auto;
-            padding: 1.5rem;
+            padding: 2rem 1.5rem;
         }
 
-        .drawer.open {
-            right: 0;
+        .sidebar.open {
+            left: 0;
         }
 
-        .drawer-header {
+        .sidebar-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1.2rem;
+            margin-bottom: 2rem;
             padding-bottom: 0.8rem;
-            border-bottom: 1px solid #EEE;
+            border-bottom: 1px solid var(--border-color);
         }
 
-        .drawer-close {
+        .sidebar-title {
+            font-size: 1.5rem;
+            font-weight: 300;
+            color: var(--text-light);
+        }
+
+        .sidebar-close {
             background: none;
             border: none;
-            font-size: 1.5rem;
+            color: var(--text-light);
+            font-size: 2rem;
             cursor: pointer;
-            color: #666;
         }
 
+        .section-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent-orange);
+            margin: 1.8rem 0 0.8rem 0;
+            font-weight: bold;
+        }
+
+        /* Tree View Styling */
+        .tree-list, .tree-list ul {
+            list-style: none;
+            padding-left: 1rem;
+        }
+
+        .tree-node {
+            margin: 0.5rem 0;
+            font-size: 0.95rem;
+            cursor: pointer;
+            color: var(--text-dim);
+        }
+
+        .tree-node:hover {
+            color: var(--accent-cyan);
+        }
+
+        .tree-node strong {
+            color: var(--text-light);
+            font-size: 1rem;
+        }
+
+        /* Timeline Styling */
+        .timeline-list {
+            list-style: none;
+            border-left: 2px solid var(--accent-lime);
+            padding-left: 1rem;
+            margin-left: 0.5rem;
+        }
+
+        .timeline-item {
+            margin-bottom: 1rem;
+            cursor: pointer;
+        }
+
+        .timeline-item .t-place {
+            font-size: 0.95rem;
+            color: var(--text-light);
+        }
+
+        .timeline-item .t-date {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        /* Form Inputs */
         .form-group {
             margin-bottom: 1rem;
         }
 
         .form-group label {
             display: block;
-            font-size: 0.85rem;
-            font-weight: bold;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-dim);
             margin-bottom: 0.3rem;
-        }
-
-        .form-row {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .form-row .form-group {
-            flex: 1;
         }
 
         input, select, textarea {
             width: 100%;
             padding: 10px;
-            border: 1.5px solid #DDD;
-            border-radius: 8px;
+            background: #1A1A1A;
+            border: 1px solid var(--border-color);
+            color: var(--text-light);
             font-size: 0.9rem;
             outline: none;
-            background: #fff;
+            font-family: inherit;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--accent-cyan);
         }
 
         .hidden-input {
@@ -332,39 +379,66 @@
             margin-top: 0.4rem;
         }
 
-        .btn-submit {
-            background: var(--primary);
-            color: white;
+        .btn-metro {
+            background-color: var(--accent-cyan);
+            color: black;
             border: none;
             padding: 12px;
-            border-radius: 8px;
             font-weight: bold;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
             width: 100%;
             cursor: pointer;
             margin-top: 0.5rem;
+        }
+
+        .btn-ai {
+            background-color: var(--accent-magenta);
+            color: white;
+            border: none;
+            padding: 10px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            width: 100%;
+            cursor: pointer;
+            margin-bottom: 1rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
         }
     </style>
 </head>
 <body>
 
-    <!-- TOP NAVIGATION BAR -->
-    <navbar>
-        <div class="nav-brand">🌍 Travel Journal</div>
-        <div class="nav-actions">
-            <select id="countryFilter" class="country-dropdown">
-                <option value="ALL">All Countries</option>
-            </select>
-            <button class="btn-add" id="openDrawerBtn">+ Add Memory</button>
+    <!-- TOP METRO PIVOT BANNER -->
+    <header>
+        <div class="header-top">
+            <div class="brand-title">🌍 Wanderlust Metro</div>
+            <button class="btn-menu-toggle" id="openSidebarBtn">≡ Menu</button>
         </div>
-    </navbar>
 
-    <!-- COLLAPSIBLE FORM DRAWER -->
-    <div class="drawer-overlay" id="drawerOverlay"></div>
-    <div class="drawer" id="drawer">
-        <div class="drawer-header">
-            <h3>✍️ New Travel Entry</h3>
-            <button class="drawer-close" id="closeDrawerBtn">&times;</button>
+        <div class="pivot-container" id="pivotBar">
+            <span class="pivot-item active" onclick="filterByCountry('ALL')">ALL</span>
+            <!-- Dynamic Country pivots will load here -->
         </div>
+    </header>
+
+    <!-- LEFT FULL-SCREEN SIDEBAR -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-title">Navigation</div>
+            <button class="sidebar-close" id="closeSidebarBtn">&times;</button>
+        </div>
+
+        <!-- API KEY CONFIGURATION -->
+        <div class="section-label">🔑 Gemini AI Setup</div>
+        <div class="form-group">
+            <input type="password" id="geminiApiKey" placeholder="Paste Gemini API Key here...">
+        </div>
+
+        <!-- ADD MEMORY FORM -->
+        <div class="section-label">✍️ Add Travel Memory</div>
         <form id="travelForm">
             <div class="form-group">
                 <label>Country *</label>
@@ -373,7 +447,6 @@
                     <option value="Germany">Germany</option>
                     <option value="France">France</option>
                     <option value="Italy">Italy</option>
-                    <option value="Spain">Spain</option>
                     <option value="Other">Other...</option>
                 </select>
                 <input type="text" id="customCountry" class="hidden-input" placeholder="Type country">
@@ -395,46 +468,42 @@
                 <input type="text" id="customPlace" class="hidden-input" placeholder="Type place">
             </div>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Date Visited *</label>
-                    <input type="date" id="visitDate" required>
-                </div>
-                <div class="form-group">
-                    <label>Stay Days</label>
-                    <input type="number" id="stayDays" placeholder="e.g. 3">
-                </div>
+            <div class="form-group">
+                <label>Date Visited *</label>
+                <input type="date" id="visitDate" required>
             </div>
 
-            <!-- Photos Upload Input -->
             <div class="form-group">
-                <label>Upload Photos (Select Multiple)</label>
+                <label>Upload Photos</label>
                 <input type="file" id="photoInput" accept="image/*" multiple>
             </div>
 
             <div class="form-group">
-                <label>Experience / Story *</label>
-                <textarea id="story" rows="3" placeholder="What did you visit or experience?" required></textarea>
+                <label>Raw Notes / Story *</label>
+                <textarea id="story" rows="3" placeholder="Tell us what you saw or experienced..." required></textarea>
             </div>
 
-            <button type="submit" class="btn-submit" id="submitBtn">Publish Memory</button>
+            <button type="button" class="btn-ai" id="aiBtn">✨ Polish & Generate with AI</button>
+            <button type="submit" class="btn-metro" id="submitBtn">Publish Memory</button>
         </form>
+
+        <!-- TREE HIERARCHY MENU -->
+        <div class="section-label">🌳 Explorer Tree</div>
+        <div id="treeContainer"></div>
+
+        <!-- TIMELINE VIEW -->
+        <div class="section-label">⏳ Timeline View</div>
+        <ul class="timeline-list" id="timelineList"></ul>
     </div>
 
     <!-- MAIN PAGE CONTENT -->
-    <div class="container">
+    <div class="main-container">
         
-        <!-- Top Section: Map & Timeline -->
-        <div class="top-section">
-            <div id="map"></div>
-            <div class="timeline-card">
-                <div class="timeline-title">⏳ Travel Timeline</div>
-                <ul class="timeline-list" id="timelineList"></ul>
-            </div>
-        </div>
+        <!-- Interactive Map -->
+        <div id="map"></div>
 
         <!-- Feed Section -->
-        <div class="section-header" id="feedHeader">Latest Visited Place</div>
+        <div class="page-heading" id="pageHeading">Travel Journal</div>
         <div id="postsContainer"></div>
 
     </div>
@@ -443,7 +512,6 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
-        // Preset Database for Cascading Dropdowns
         const locationDB = {
             "Germany": {
                 "Bavaria": ["Eichstätt", "Munich", "Nuremberg"],
@@ -453,12 +521,10 @@
                 "Île-de-France": ["Paris"]
             },
             "Italy": {
-                "Lazio": ["Rome"],
-                "Tuscany": ["Florence"]
+                "Lazio": ["Rome"]
             }
         };
 
-        // Default Sample Memory
         let entries = [
             {
                 id: 1,
@@ -466,13 +532,13 @@
                 state: "Bavaria",
                 place: "Eichstätt",
                 date: "2026-09-20",
-                days: "3 days",
                 lat: 48.8912,
                 lng: 11.1839,
-                story: "Exploring the historic town of Eichstätt in the heart of Altmühltal Nature Park. Known for Baroque architecture and picturesque valley river views.",
+                countryFacts: "Germany • Lang: German • Currency: Euro (€) • Located in Central Europe.",
+                placeFacts: "Eichstätt is famous for Baroque architecture, Willibaldsburg Castle, and Altmühltal Valley.",
+                story: "Exploring the historic town of Eichstätt in the heart of Altmühltal Nature Park. Known for Baroque architecture and peaceful river valley views.",
                 photos: [
-                    "https://images.unsplash.com/photo-1599946347371-68eb71b16afc?auto=format&fit=crop&w=800&q=80",
-                    "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=300&q=80"
+                    "https://images.unsplash.com/photo-1599946347371-68eb71b16afc?auto=format&fit=crop&w=800&q=80"
                 ]
             }
         ];
@@ -485,22 +551,22 @@
 
         let mapMarkers = [];
 
-        // Drawer Controls
-        const drawer = document.getElementById('drawer');
-        const drawerOverlay = document.getElementById('drawerOverlay');
+        // Sidebar Controls
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
         
-        document.getElementById('openDrawerBtn').onclick = () => {
-            drawer.classList.add('open');
-            drawerOverlay.style.display = 'block';
+        document.getElementById('openSidebarBtn').onclick = () => {
+            sidebar.classList.add('open');
+            sidebarOverlay.style.display = 'block';
         };
 
-        const closeDrawer = () => {
-            drawer.classList.remove('open');
-            drawerOverlay.style.display = 'none';
+        const closeSidebar = () => {
+            sidebar.classList.remove('open');
+            sidebarOverlay.style.display = 'none';
         };
 
-        document.getElementById('closeDrawerBtn').onclick = closeDrawer;
-        drawerOverlay.onclick = closeDrawer;
+        document.getElementById('closeSidebarBtn').onclick = closeSidebar;
+        sidebarOverlay.onclick = closeSidebar;
 
         // Cascading Dropdown Logic
         const countrySel = document.getElementById('countrySelect');
@@ -514,13 +580,13 @@
             placeSel.disabled = true;
 
             if (country === 'Other') {
-                enableCustomInput('customCountry', true);
-                enableCustomInput('customState', true);
-                enableCustomInput('customPlace', true);
+                toggleCustom('customCountry', true);
+                toggleCustom('customState', true);
+                toggleCustom('customPlace', true);
                 stateSel.disabled = false;
                 placeSel.disabled = false;
             } else if (locationDB[country]) {
-                enableCustomInput('customCountry', false);
+                toggleCustom('customCountry', false);
                 stateSel.disabled = false;
                 Object.keys(locationDB[country]).forEach(st => {
                     stateSel.innerHTML += `<option value="${st}">${st}</option>`;
@@ -535,11 +601,11 @@
             placeSel.innerHTML = '<option value="">-- Select Place --</option>';
 
             if (state === 'Other') {
-                enableCustomInput('customState', true);
-                enableCustomInput('customPlace', true);
+                toggleCustom('customState', true);
+                toggleCustom('customPlace', true);
                 placeSel.disabled = false;
             } else if (locationDB[country] && locationDB[country][state]) {
-                enableCustomInput('customState', false);
+                toggleCustom('customState', false);
                 placeSel.disabled = false;
                 locationDB[country][state].forEach(pl => {
                     placeSel.innerHTML += `<option value="${pl}">${pl}</option>`;
@@ -550,165 +616,236 @@
 
         placeSel.addEventListener('change', () => {
             if (placeSel.value === 'Other') {
-                enableCustomInput('customPlace', true);
+                toggleCustom('customPlace', true);
             } else {
-                enableCustomInput('customPlace', false);
+                toggleCustom('customPlace', false);
             }
         });
 
-        function enableCustomInput(id, show) {
+        function toggleCustom(id, show) {
             const el = document.getElementById(id);
             el.style.display = show ? 'block' : 'none';
             el.required = show;
         }
 
-        // Render Everything UI (Feed, Timeline, Map Pins, Top Nav)
+        // Render UI Elements
         function renderUI(filterCountry = "ALL") {
-            // Sort entries chronologically (Latest First)
             entries.sort((a, b) => new Date(b.date) - new Date(a.date));
 
             // Clear Markers
             mapMarkers.forEach(m => map.removeLayer(m));
             mapMarkers = [];
 
-            // Populate Top Country Filter Dropdown
-            const countryFilter = document.getElementById('countryFilter');
+            // 1. Populate Top Pivot Bar
+            const pivotBar = document.getElementById('pivotBar');
             const uniqueCountries = [...new Set(entries.map(e => e.country))];
-            countryFilter.innerHTML = '<option value="ALL">All Countries</option>';
+            
+            let pivotHtml = `<span class="pivot-item ${filterCountry === 'ALL' ? 'active' : ''}" onclick="filterByCountry('ALL')">ALL</span>`;
             uniqueCountries.forEach(c => {
-                const selected = c === filterCountry ? 'selected' : '';
-                countryFilter.innerHTML += `<option value="${c}" ${selected}>${c}</option>`;
+                const isActive = c === filterCountry ? 'active' : '';
+                pivotHtml += `<span class="pivot-item ${isActive}" onclick="filterByCountry('${c}')">${c.toUpperCase()}</span>`;
             });
+            pivotBar.innerHTML = pivotHtml;
 
             // Filter Entries
-            const filteredEntries = filterCountry === "ALL" 
+            const filtered = filterCountry === "ALL" 
                 ? entries 
                 : entries.filter(e => e.country === filterCountry);
 
-            // 1. Render Posts
-            const postsContainer = document.getElementById('postsContainer');
-            postsContainer.innerHTML = '';
+            // 2. Render Blog Posts
+            const container = document.getElementById('postsContainer');
+            container.innerHTML = '';
 
-            filteredEntries.forEach((entry, index) => {
-                // Add Map Pins
+            filtered.forEach((entry, idx) => {
                 const marker = L.marker([entry.lat, entry.lng]).addTo(map);
                 marker.bindPopup(`<b>${entry.place}</b><br>${entry.state}, ${entry.country}`);
                 mapMarkers.push(marker);
 
-                const isFeatured = index === 0;
-                const heroPhoto = entry.photos && entry.photos.length > 0 
-                    ? entry.photos[0] 
-                    : 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=800&q=80';
+                const isFeatured = idx === 0;
 
-                // Render Thumbnails for additional photos
-                let thumbnailsHtml = '';
-                if (entry.photos && entry.photos.length > 1) {
-                    thumbnailsHtml = '<div class="thumbnail-grid">';
-                    entry.photos.forEach(photoUrl => {
-                        thumbnailsHtml += `<img src="${photoUrl}" onclick="swapHeroImage(this, 'hero-${entry.id}')" alt="Thumbnail">`;
-                    });
-                    thumbnailsHtml += '</div>';
+                let photosHtml = '';
+                if (entry.photos && entry.photos.length > 0) {
+                    photosHtml = `<img src="${entry.photos[0]}" class="hero-photo" id="hero-${entry.id}">`;
+                    if (entry.photos.length > 1) {
+                        photosHtml += '<div class="thumbnail-grid">';
+                        entry.photos.forEach(p => {
+                            photosHtml += `<img src="${p}" onclick="document.getElementById('hero-${entry.id}').src='${p}'">`;
+                        });
+                        photosHtml += '</div>';
+                    }
                 }
 
-                const cardHtml = `
+                const postCard = `
                     <div class="post-card ${isFeatured ? 'featured' : ''}" id="post-${entry.id}">
-                        <img src="${heroPhoto}" class="hero-photo" id="hero-${entry.id}" alt="${entry.place}">
-                        <div class="post-content">
-                            ${isFeatured ? '<span class="latest-badge">✨ Most Recent Visit</span>' : ''}
-                            <div class="post-header">
-                                <div class="post-title">📍 ${entry.place}, ${entry.state}</div>
-                            </div>
-                            <div class="post-meta">🗓️ ${entry.date} ${entry.days ? '• ' + entry.days : ''} | <b>${entry.country}</b></div>
-                            <p class="post-story">${entry.story}</p>
-                            ${thumbnailsHtml}
-                        </div>
+                        ${isFeatured ? '<span class="post-badge">✨ Most Recent</span>' : ''}
+                        <div class="post-title">${entry.place}</div>
+                        <div class="post-sub">${entry.state}, ${entry.country} • ${entry.date}</div>
+                        
+                        ${entry.countryFacts ? `<div class="ai-facts-box"><strong>🌍 Country Info:</strong> ${entry.countryFacts}</div>` : ''}
+                        ${entry.placeFacts ? `<div class="ai-facts-box"><strong>📍 Place Highlights:</strong> ${entry.placeFacts}</div>` : ''}
+
+                        ${photosHtml}
+                        <p class="post-story">${entry.story}</p>
                     </div>
                 `;
-                postsContainer.innerHTML += cardHtml;
+                container.innerHTML += postCard;
             });
 
-            // Recenter map on latest entry if available
-            if (filteredEntries.length > 0) {
-                map.flyTo([filteredEntries[0].lat, filteredEntries[0].lng], 6);
+            if (filtered.length > 0) {
+                map.flyTo([filtered[0].lat, filtered[0].lng], 6);
             }
 
-            // 2. Render Timeline
+            // 3. Render Tree View
+            renderTreeView();
+
+            // 4. Render Timeline
+            renderTimeline(filtered);
+        }
+
+        function filterByCountry(c) {
+            renderUI(c);
+        }
+
+        function renderTreeView() {
+            const treeContainer = document.getElementById('treeContainer');
+            let treeHtml = '<ul class="tree-list">';
+
+            const countryMap = {};
+            entries.forEach(e => {
+                if (!countryMap[e.country]) countryMap[e.country] = {};
+                if (!countryMap[e.country][e.state]) countryMap[e.country][e.state] = [];
+                countryMap[e.country][e.state].push(e);
+            });
+
+            for (let c in countryMap) {
+                treeHtml += `<li class="tree-node"><strong>▸ ${c}</strong><ul>`;
+                for (let s in countryMap[c]) {
+                    treeHtml += `<li class="tree-node">▸ ${s}<ul>`;
+                    countryMap[c][s].forEach(p => {
+                        treeHtml += `<li class="tree-node" onclick="scrollToAndClose('post-${p.id}')">• ${p.place}</li>`;
+                    });
+                    treeHtml += '</ul></li>';
+                }
+                treeHtml += '</ul></li>';
+            }
+            treeHtml += '</ul>';
+            treeContainer.innerHTML = treeHtml;
+        }
+
+        function renderTimeline(filtered) {
             const timelineList = document.getElementById('timelineList');
             timelineList.innerHTML = '';
-            filteredEntries.forEach(entry => {
+            filtered.forEach(entry => {
                 timelineList.innerHTML += `
-                    <li class="timeline-item" onclick="scrollToPost('post-${entry.id}')">
-                        <div><b>${entry.place}</b>, ${entry.country}</div>
-                        <div class="timeline-date">${entry.date}</div>
+                    <li class="timeline-item" onclick="scrollToAndClose('post-${entry.id}')">
+                        <div class="t-place"><b>${entry.place}</b>, ${entry.country}</div>
+                        <div class="t-date">${entry.date}</div>
                     </li>
                 `;
             });
         }
 
-        // Swap Hero Image when Thumbnail is Tapped
-        function swapHeroImage(thumbEl, heroId) {
-            document.getElementById(heroId).src = thumbEl.src;
-        }
-
-        function scrollToPost(postId) {
-            const el = document.getElementById(postId);
+        function scrollToAndClose(id) {
+            closeSidebar();
+            const el = document.getElementById(id);
             if (el) el.scrollIntoView({ behavior: 'smooth' });
         }
 
-        // Filter Dropdown Change Listener
-        document.getElementById('countryFilter').addEventListener('change', (e) => {
-            renderUI(e.target.value);
+        // Gemini AI Integration
+        document.getElementById('aiBtn').addEventListener('click', async () => {
+            const apiKey = document.getElementById('geminiApiKey').value.trim();
+            const country = countrySel.value === 'Other' ? document.getElementById('customCountry').value : countrySel.value;
+            const state = stateSel.value === 'Other' ? document.getElementById('customState').value : stateSel.value;
+            const place = placeSel.value === 'Other' ? document.getElementById('customPlace').value : placeSel.value;
+            const rawStory = document.getElementById('story').value;
+
+            if (!apiKey) {
+                alert("Please paste your Gemini API Key in the box above first!");
+                return;
+            }
+            if (!place || !country) {
+                alert("Please select or enter Country and Place first!");
+                return;
+            }
+
+            const aiBtn = document.getElementById('aiBtn');
+            aiBtn.innerText = "⏳ Gemini is thinking...";
+            aiBtn.disabled = true;
+
+            const prompt = `You are a travel assistant. Generate travel details in valid JSON format for location: Place: ${place}, State: ${state}, Country: ${country}.
+            User Notes: "${rawStory}".
+            Respond ONLY with a raw JSON object matching this schema:
+            {
+                "countryFacts": "1-2 lines on currency, primary language, and location.",
+                "placeFacts": "4-5 lines about place speciality and must-sees.",
+                "polishedStory": "Rephrase and polish the user notes into an enjoyable travel story composition."
+            }`;
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }]
+                    })
+                });
+
+                const data = await response.json();
+                const rawText = data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
+                const jsonResult = JSON.parse(rawText);
+
+                document.getElementById('story').value = jsonResult.polishedStory;
+                window.lastAiResult = jsonResult; // Store generated facts temporarily
+                alert("✨ Story polished and facts generated!");
+
+            } catch (err) {
+                console.error(err);
+                alert("Failed to connect to Gemini API. Check your API key or network.");
+            } finally {
+                aiBtn.innerText = "✨ Polish & Generate with AI";
+                aiBtn.disabled = false;
+            }
         });
 
-        // Helper: Convert File objects to Base64 preview URLs
-        function readFilesAsDataURLs(files) {
+        // Photo File Converter
+        function readFiles(files) {
             return Promise.all(Array.from(files).map(file => {
-                return new Promise((resolve) => {
+                return new Promise(resolve => {
                     const reader = new FileReader();
-                    reader.onload = (e) => resolve(e.target.result);
+                    reader.onload = e => resolve(e.target.result);
                     reader.readAsDataURL(file);
                 });
             }));
         }
 
-        // Geocoding Helper API
+        // Geocoding Helper
         async function fetchCoordinates(place, state, country) {
             const query = `${place}, ${state}, ${country}`;
             const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`;
             try {
                 const res = await fetch(url);
                 const data = await res.json();
-                if (data && data.length > 0) {
-                    return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
-                }
-            } catch (err) {
-                console.error("Geocoding failed", err);
-            }
+                if (data && data.length > 0) return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+            } catch (err) {}
             return { lat: 48.8912, lng: 11.1839 };
         }
 
-        // Form Submit Handler
+        // Submit Form
         document.getElementById('travelForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
+            btn.innerText = "Publishing...";
             btn.disabled = true;
-            btn.innerText = "Processing Photos & GPS...";
 
             const finalCountry = countrySel.value === 'Other' ? document.getElementById('customCountry').value : countrySel.value;
             const finalState = stateSel.value === 'Other' ? document.getElementById('customState').value : stateSel.value;
             const finalPlace = placeSel.value === 'Other' ? document.getElementById('customPlace').value : placeSel.value;
 
-            // Handle Photo Files
             const photoFiles = document.getElementById('photoInput').files;
             let photoUrls = [];
-            if (photoFiles.length > 0) {
-                photoUrls = await readFilesAsDataURLs(photoFiles);
-            }
+            if (photoFiles.length > 0) photoUrls = await readFiles(photoFiles);
 
-            // Fetch Map Coordinates
             const coords = await fetchCoordinates(finalPlace, finalState, finalCountry);
-
-            const daysVal = document.getElementById('stayDays').value;
 
             const newEntry = {
                 id: Date.now(),
@@ -716,21 +853,23 @@
                 state: finalState,
                 place: finalPlace,
                 date: document.getElementById('visitDate').value,
-                days: daysVal ? `${daysVal} days` : '',
                 lat: coords.lat,
                 lng: coords.lng,
                 story: document.getElementById('story').value,
+                countryFacts: window.lastAiResult ? window.lastAiResult.countryFacts : '',
+                placeFacts: window.lastAiResult ? window.lastAiResult.placeFacts : '',
                 photos: photoUrls
             };
 
-            entries.push(newEntry);
-            renderUI();
+            entries.unshift(newEntry);
+            window.lastAiResult = null; // reset AI cache
 
-            // Reset & Close Drawer
+            renderUI();
             document.getElementById('travelForm').reset();
-            closeDrawer();
-            btn.disabled = false;
+            closeSidebar();
+
             btn.innerText = "Publish Memory";
+            btn.disabled = false;
         });
 
         // Initial Render
